@@ -20,30 +20,16 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Vistual">
         
-        <!-- Actividad de Login como actividad principal -->
+        <!-- MainActivity principal con toda la navegación en Compose -->
         <activity
-            android:name=".LoginActivity"
-            android:exported="true">
+            android:name=".MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.Vistual">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        
-        <!-- Actividad de Registro -->
-        <activity
-            android:name=".RegisterActivity"
-            android:exported="false" />
-        
-        <!-- Actividad Principal del Closet -->
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" />
-            
-        <!-- Actividad para Agregar Prendas -->
-        <activity
-            android:name=".AgregarPrendaActivity"
-            android:exported="false" />
             
     </application>
 
