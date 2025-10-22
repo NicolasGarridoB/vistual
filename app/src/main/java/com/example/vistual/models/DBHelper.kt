@@ -162,6 +162,13 @@ class DBHelper(context: Context) :
         }
     }
 
+    fun eliminarPrenda(idPrenda: Int): Boolean {
+        val db = this.writableDatabase
+        val resultado = db.delete(TABLE_PRENDAS, "$COL_PRENDA_ID = ?", arrayOf(idPrenda.toString()))
+        db.close()
+        return resultado > 0
+    }
+
     private fun verificarUsuarioExiste(idUsuario: Int): Boolean {
         return try {
             val db = this.readableDatabase

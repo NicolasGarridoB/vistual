@@ -10,14 +10,27 @@
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/app_bar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="@color/violet_light">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            app:title="Vistual"
-            app:subtitle="Tu Closet Virtual" />
+            app:titleTextColor="@android:color/white">
+
+            <TextView
+                android:id="@+id/tv_toolbar_title"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Tu Closet Virtual"
+                android:fontFamily="sans-serif-black"
+                android:textSize="28sp"
+                android:textStyle="italic"
+                android:textColor="@android:color/white"
+                android:layout_gravity="center" />
+
+        </com.google.android.material.appbar.MaterialToolbar>
 
     </com.google.android.material.appbar.AppBarLayout>
 
@@ -31,6 +44,17 @@
             android:layout_height="wrap_content"
             android:paddingBottom="80dp">
 
+            <ImageView
+                android:id="@+id/iv_logo"
+                android:layout_width="150dp"
+                android:layout_height="150dp"
+                android:src="@drawable/vistu"
+                android:scaleType="fitCenter"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="16dp" />
+
 
             <TextView
                 android:id="@+id/tv_label_parte_superior"
@@ -41,98 +65,98 @@
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="16dp"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toBottomOf="@id/iv_logo" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_tops"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/tv_label_parte_superior"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_prenda_carrusel" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_tops"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@id/tv_label_parte_superior"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:listitem="@layout/item_prenda_carrusel" />
 
 
-    <TextView
-        android:id="@+id/tv_label_parte_inferior"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Parte Inferior"
-        android:textStyle="bold"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recycler_view_tops" />
+            <TextView
+                android:id="@+id/tv_label_parte_inferior"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Parte Inferior"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recycler_view_tops" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_bottoms"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/tv_label_parte_inferior"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_prenda_carrusel" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_bottoms"
+                android:layout_width="0dp"
+                android:layout_height="180dp"
+                android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@id/tv_label_parte_inferior"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:listitem="@layout/item_prenda_inferior_carrusel" />
 
-    <TextView
-        android:id="@+id/tv_label_zapatos"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Zapatos"
-        android:textStyle="bold"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recycler_view_bottoms" />
+            <TextView
+                android:id="@+id/tv_label_zapatos"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Zapatos"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recycler_view_bottoms" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_zapatos"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/tv_label_zapatos"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_prenda_carrusel" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_zapatos"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@id/tv_label_zapatos"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:listitem="@layout/item_prenda_carrusel" />
 
-    <TextView
-        android:id="@+id/tv_label_accesorios"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Accesorios"
-        android:textStyle="bold"
-        android:layout_marginStart="16dp"
-        android:layout_marginTop="24dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/recycler_view_zapatos" />
+            <TextView
+                android:id="@+id/tv_label_accesorios"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Accesorios"
+                android:textStyle="bold"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="24dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/recycler_view_zapatos" />
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/recycler_view_accesorios"
-        android:layout_width="0dp"
-        android:layout_height="150dp"
-        android:orientation="horizontal"
-        android:clipToPadding="false"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
-        android:layout_marginBottom="80dp"
-        app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-        app:layout_constraintTop_toBottomOf="@id/tv_label_accesorios"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        tools:listitem="@layout/item_prenda_carrusel" />
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view_accesorios"
+                android:layout_width="0dp"
+                android:layout_height="150dp"
+                android:orientation="horizontal"
+                android:clipToPadding="false"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:layout_marginBottom="80dp"
+                app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                app:layout_constraintTop_toBottomOf="@id/tv_label_accesorios"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                tools:listitem="@layout/item_prenda_carrusel" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
