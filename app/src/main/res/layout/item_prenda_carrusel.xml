@@ -1,8 +1,20 @@
-<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/iv_prenda"
-    android:layout_width="120dp"
-    android:layout_height="120dp"
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="130dp"
+    android:layout_height="130dp"
     android:layout_margin="8dp"
-    android:scaleType="centerCrop"
-    android:background="#f0f0f0" />
+    app:cardCornerRadius="12dp"
+    app:cardElevation="4dp"
+    android:foreground="?android:attr/selectableItemBackground">
+
+    <ImageView
+        android:id="@+id/iv_prenda"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:scaleType="centerCrop"
+        android:background="@color/teal_200"
+        android:contentDescription="Imagen de prenda" />
+
+</androidx.cardview.widget.CardView>
     

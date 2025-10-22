@@ -1,31 +1,44 @@
 package com.example.vistual.repository
 
-import com.example.vistual.data.ClothingDao // <-- 1. Importa tu DAO
-import com.example.vistual.data.ClothingItem
-import com.example.vistual.data.ClothingType
+import com.example.vistual.models.DBHelper
+import com.example.vistual.models.ClothingItem
+import com.example.vistual.models.ClothingType
+import com.example.vistual.models.isTop
+import com.example.vistual.models.isBottom
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-// 2. Añade el DAO como un parámetro privado en el constructor
-class ClosetRepository(private val clothingDao: ClothingDao) {
+class ClosetRepository(private val dbHelper: DBHelper, private val userId: Int) {
 
-    // 3. Crea una función para obtener las prendas superiores.
-    // Esta función simplemente llama al método correspondiente del DAO.
-    // Devuelve un Flow para que la UI se actualice automáticamente.
-    fun getTopItems(): Flow<List<ClothingItem>> {
-        return clothingDao.getTopItems()
+    // Función para obtener las prendas superiores
+    fun getTopItems(): Flow<List<ClothingItem>> = flow {
+        val allItems = withContext(Dispatchers.IO) {
+            dbHelper.obtenerPrendasUsuario(userId)
+        }
+        emit(allItems.filter { it.isTop() })
     }
 
-    // 4. Haz lo mismo para las prendas inferiores.
-    fun getBottomItems(): Flow<List<ClothingItem>> {
-        return clothingDao.getBottomItems()
+    // Función para obtener las prendas inferiores
+    fun getBottomItems(): Flow<List<ClothingItem>> = flow {
+        val allItems = withContext(Dispatchers.IO) {
+            dbHelper.obtenerPrendasUsuario(userId)
+        }
+        emit(allItems.filter { it.isBottom() })
     }
 
-    // 5. Crea una función para insertar una nueva prenda.
-    // La marcamos como 'suspend' porque es una operación de escritura
-    // y debe ejecutarse en una corrutina sin bloquear el hilo principal.
+    // Función para insertar una nueva prenda
     suspend fun insertItem(imageUri: String, type: ClothingType) {
-        val newItem = ClothingItem(imageUri = imageUri, type = type)
-        clothingDao.insertItem(newItem)
+        withContext(Dispatchers.IO) {
+            dbHelper.agregarPrenda(
+                nombre = "Prenda ${type.displayName}",
+                categoria = type.displayName,
+                color = "Sin especificar",
+                rutaImagen = imageUri,
+                idUsuario = userId
+            )
+        }
     }
 
     // Puedes añadir más funciones aquí si las necesitas (ej: borrar, actualizar)

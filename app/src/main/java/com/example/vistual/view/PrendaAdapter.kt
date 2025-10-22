@@ -1,5 +1,6 @@
 package com.example.vistual.view
 
+import android.graphics.BitmapFactory
 import android.net.Uri
 import android.view.LayoutInflater
 import android.view.View
@@ -8,6 +9,7 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.vistual.R
 import com.example.vistual.models.Prenda
+import java.io.File
 
 class PrendaAdapter(private var prendas: MutableList<Prenda>) : RecyclerView.Adapter<PrendaAdapter.PrendaViewHolder>() {
 
@@ -25,8 +27,30 @@ class PrendaAdapter(private var prendas: MutableList<Prenda>) : RecyclerView.Ada
     // Se llama para vincular los datos de una prenda a un ViewHolder.
     override fun onBindViewHolder(holder: PrendaViewHolder, position: Int) {
         val prenda = prendas[position]
-        // Carga la imagen desde la URI guardada en la base de datos.
-        holder.imageView.setImageURI(Uri.parse(prenda.rutaImagen))
+        
+        // Cargar imagen de manera más robusta
+        try {
+            // Si es una ruta de archivo local
+            if (prenda.rutaImagen.startsWith("/")) {
+                val file = File(prenda.rutaImagen)
+                if (file.exists()) {
+                    val bitmap = BitmapFactory.decodeFile(prenda.rutaImagen)
+                    holder.imageView.setImageBitmap(bitmap)
+                } else {
+                    holder.imageView.setImageResource(R.color.teal_200)
+                }
+            } else {
+                // Si es una URI
+                try {
+                    holder.imageView.setImageURI(Uri.parse(prenda.rutaImagen))
+                } catch (e: Exception) {
+                    holder.imageView.setImageResource(R.color.teal_200)
+                }
+            }
+        } catch (e: Exception) {
+            // Imagen por defecto en caso de error
+            holder.imageView.setImageResource(R.color.teal_200)
+        }
     }
 
     // Devuelve el número total de items en la lista.

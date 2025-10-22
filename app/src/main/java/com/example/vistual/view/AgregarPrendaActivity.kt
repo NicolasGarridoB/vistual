@@ -1,146 +1,208 @@
-package com.example.vistual.models
+package com.example.vistual.view
 
-import android.content.ContentValues
-import android.content.Context
-import android.database.Cursor
-import android.database.sqlite.SQLiteDatabase
-import android.database.sqlite.SQLiteOpenHelper
+import android.Manifest
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Build
+import android.os.Bundle
+import android.provider.MediaStore
+import android.widget.*
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
+import com.example.vistual.R
+import com.example.vistual.models.DBHelper
+import java.io.File
+import java.io.FileOutputStream
+import java.io.InputStream
 
-class DBHelper(context: Context) :
-    SQLiteOpenHelper(context, "closet_virtual.db", null, 1) {
+class AgregarPrendaActivity : AppCompatActivity() {
 
-    companion object {
-        // Tabla Usuarios (sin cambios)
-        private const val TABLE_USUARIOS = "usuarios"
-        private const val COL_USUARIO_ID = "id"
-        private const val COL_USUARIO_NOMBRE_COMPLETO = "nombre"
-        private const val COL_USUARIO_CORREO = "correo"
-        private const val COL_USUARIO_PASSWORD = "password"
+    private lateinit var dbHelper: DBHelper
+    private lateinit var sharedPreferences: SharedPreferences
+    private var usuarioId: Int = -1
 
-        // --- INICIO: CAMBIOS EN LA TABLA PRENDAS ---
-        private const val TABLE_PRENDAS = "prendas"
-        private const val COL_PRENDA_ID = "id"
-        // Nuevas columnas
-        private const val COL_PRENDA_NOMBRE = "nombre_prenda"
-        private const val COL_PRENDA_COLOR = "color_prenda"
-        // Columnas existentes
-        private const val COL_PRENDA_IMAGEN_PATH = "imagen_path"
-        private const val COL_PRENDA_CATEGORIA = "categoria"
-        private const val COL_PRENDA_USUARIO_ID = "usuario_id"
-        // --- FIN: CAMBIOS EN LA TABLA PRENDAS ---
-    }
+    private lateinit var ivPreviewPrenda: ImageView
+    private lateinit var etNombrePrenda: EditText
+    private lateinit var spinnerCategoria: Spinner
+    private lateinit var etColorPrenda: EditText
+    private lateinit var btnGuardarPrenda: Button
+    private lateinit var btnCancelar: Button
 
-    override fun onCreate(db: SQLiteDatabase) {
-        val crearTablaUsuarios = """
-            CREATE TABLE $TABLE_USUARIOS(
-                $COL_USUARIO_ID INTEGER PRIMARY KEY AUTOINCREMENT, 
-                $COL_USUARIO_NOMBRE_COMPLETO TEXT, 
-                $COL_USUARIO_CORREO TEXT UNIQUE, 
-                $COL_USUARIO_PASSWORD TEXT
-            )""".trimIndent()
-        db.execSQL(crearTablaUsuarios)
+    private var imagenUri: Uri? = null
+    private var rutaImagenGuardada: String? = null
 
-        // --- Sentencia CREATE TABLE actualizada ---
-        val crearTablaPrendas = """
-            CREATE TABLE $TABLE_PRENDAS(
-                $COL_PRENDA_ID INTEGER PRIMARY KEY AUTOINCREMENT,
-                $COL_PRENDA_NOMBRE TEXT,
-                $COL_PRENDA_COLOR TEXT,
-                $COL_PRENDA_IMAGEN_PATH TEXT,
-                $COL_PRENDA_CATEGORIA TEXT,
-                $COL_PRENDA_USUARIO_ID INTEGER,
-                FOREIGN KEY($COL_PRENDA_USUARIO_ID) REFERENCES $TABLE_USUARIOS($COL_USUARIO_ID)
-            )""".trimIndent()
-        db.execSQL(crearTablaPrendas)
-    }
+    private val PERMISSION_REQUEST_CODE = 1001
 
-    override fun onUpgrade(db: SQLiteDatabase, oldVersion: Int, newVersion: Int) {
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_PRENDAS")
-        db.execSQL("DROP TABLE IF EXISTS $TABLE_USUARIOS")
-        onCreate(db)
-    }
-
-    fun registrarUsuario(nombre: String, correo: String, password: String): Boolean {
-        val db = this.writableDatabase
-        val valores = ContentValues().apply {
-            put(COL_USUARIO_NOMBRE_COMPLETO, nombre)
-            put(COL_USUARIO_CORREO, correo)
-            put(COL_USUARIO_PASSWORD, password)
+    private val seleccionarImagen = registerForActivityResult(ActivityResultContracts.GetContent()) { uri ->
+        uri?.let {
+            imagenUri = it
+            ivPreviewPrenda.setImageURI(it)
+            guardarImagenEnAlmacenamientoInterno(it)
         }
-        val resultado = db.insert(TABLE_USUARIOS, null, valores)
-        db.close()
-        return resultado != -1L
     }
 
-    fun validarLogin(correo: String, password: String): Boolean {
-        // ... (sin cambios)
-        val db = this.readableDatabase
-        val cursor: Cursor = db.rawQuery(
-            "SELECT * FROM $TABLE_USUARIOS WHERE $COL_USUARIO_CORREO = ? AND $COL_USUARIO_PASSWORD = ?",
-            arrayOf(correo, password)
-        )
-        val existe = cursor.count > 0
-        cursor.close()
-        db.close()
-        return existe
-    }
-
-    fun obtenerIdUsuario(correo: String): Int {
-        // ... (sin cambios)
-        val db = this.readableDatabase
-        val cursor: Cursor = db.rawQuery(
-            "SELECT $COL_USUARIO_ID FROM $TABLE_USUARIOS WHERE $COL_USUARIO_CORREO = ?",
-            arrayOf(correo)
-        )
-        var id = -1
-        if (cursor.moveToFirst()) {
-            id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_USUARIO_ID))
+    private val solicitarPermisos = registerForActivityResult(ActivityResultContracts.RequestMultiplePermissions()) { permissions ->
+        val todosPermitidos = permissions.entries.all { it.value }
+        if (todosPermitidos) {
+            abrirGaleria()
+        } else {
+            Toast.makeText(this, "Se necesitan permisos para acceder a las imágenes", Toast.LENGTH_LONG).show()
         }
-        cursor.close()
-        db.close()
-        return id
     }
 
-    // --- INICIO: FUNCIÓN agregarPrenda CORREGIDA Y ACTUALIZADA ---
-    // Ahora recibe todos los parámetros y devuelve un Boolean para saber si tuvo éxito.
-    fun agregarPrenda(nombre: String, categoria: String, color: String, rutaImagen: String, idUsuario: Int): Boolean {
-        val db = this.writableDatabase
-        val values = ContentValues().apply {
-            put(COL_PRENDA_NOMBRE, nombre)
-            put(COL_PRENDA_CATEGORIA, categoria)
-            put(COL_PRENDA_COLOR, color)
-            put(COL_PRENDA_IMAGEN_PATH, rutaImagen)
-            put(COL_PRENDA_USUARIO_ID, idUsuario)
-        }
-        val resultado = db.insert(TABLE_PRENDAS, null, values)
-        db.close()
-        // db.insert() devuelve -1 si hay un error, o el ID de la fila si tiene éxito.
-        return resultado != -1L
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_agregar_prenda)
+
+        inicializarVistas()
+        configurarSpinner()
+        configurarEventos()
+        obtenerDatosUsuario()
+        dbHelper = DBHelper(this)
     }
-    // --- FIN: FUNCIÓN agregarPrenda ---
 
-    fun obtenerPrendasUsuario(idUsuario: Int): List<Prenda> {
-        // ... (sin cambios en la lógica, pero necesita actualizarse si Prenda cambia)
-        val db = this.readableDatabase
-        val prendas = mutableListOf<Prenda>()
-        val cursor: Cursor = db.rawQuery(
-            "SELECT * FROM $TABLE_PRENDAS WHERE $COL_PRENDA_USUARIO_ID = ?",
-            arrayOf(idUsuario.toString())
-        )
+    private fun inicializarVistas() {
+        ivPreviewPrenda = findViewById(R.id.iv_preview_prenda)
+        etNombrePrenda = findViewById(R.id.et_nombre_prenda)
+        spinnerCategoria = findViewById(R.id.spinner_categoria)
+        etColorPrenda = findViewById(R.id.et_color_prenda)
+        btnGuardarPrenda = findViewById(R.id.btn_guardar_prenda)
+        btnCancelar = findViewById(R.id.btn_cancelar)
+    }
 
-        if (cursor.moveToFirst()) {
-            do {
-                val prenda = Prenda(
-                    id = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PRENDA_ID)),
-                    rutaImagen = cursor.getString(cursor.getColumnIndexOrThrow(COL_PRENDA_IMAGEN_PATH)),
-                    tipo = cursor.getString(cursor.getColumnIndexOrThrow(COL_PRENDA_CATEGORIA)),
-                    idUsuario = cursor.getInt(cursor.getColumnIndexOrThrow(COL_PRENDA_USUARIO_ID))
-                )
-                prendas.add(prenda)
-            } while (cursor.moveToNext())
+    private fun configurarSpinner() {
+        val categorias = arrayOf("Seleccionar categoría", "Top", "Bottom", "Zapatos", "Accesorios")
+        val adapter = ArrayAdapter(this, android.R.layout.simple_spinner_item, categorias)
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spinnerCategoria.adapter = adapter
+    }
+
+    private fun configurarEventos() {
+        ivPreviewPrenda.setOnClickListener {
+            verificarYSolicitarPermisos()
         }
-        cursor.close()
-        db.close()
-        return prendas
+
+        btnGuardarPrenda.setOnClickListener {
+            guardarPrenda()
+        }
+
+        btnCancelar.setOnClickListener {
+            finish()
+        }
+    }
+
+    private fun verificarYSolicitarPermisos() {
+        val permisosNecesarios = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            arrayOf(Manifest.permission.READ_MEDIA_IMAGES)
+        } else {
+            arrayOf(Manifest.permission.READ_EXTERNAL_STORAGE)
+        }
+
+        val permisosDenegados = permisosNecesarios.filter {
+            ContextCompat.checkSelfPermission(this, it) != PackageManager.PERMISSION_GRANTED
+        }
+
+        if (permisosDenegados.isNotEmpty()) {
+            solicitarPermisos.launch(permisosDenegados.toTypedArray())
+        } else {
+            abrirGaleria()
+        }
+    }
+
+    private fun abrirGaleria() {
+        seleccionarImagen.launch("image/*")
+    }
+
+    private fun obtenerDatosUsuario() {
+        sharedPreferences = getSharedPreferences("ClosetVirtual", MODE_PRIVATE)
+        usuarioId = sharedPreferences.getInt("id_usuario", -1)
+        
+        if (usuarioId == -1) {
+            Toast.makeText(this, "Error: Usuario no válido", Toast.LENGTH_SHORT).show()
+            finish()
+        }
+    }
+
+    private fun guardarImagenEnAlmacenamientoInterno(uri: Uri) {
+        try {
+            val inputStream: InputStream? = contentResolver.openInputStream(uri)
+            if (inputStream == null) {
+                Toast.makeText(this, "No se pudo leer la imagen seleccionada", Toast.LENGTH_SHORT).show()
+                return
+            }
+            
+            val nombreArchivo = "prenda_${System.currentTimeMillis()}.jpg"
+            val archivo = File(filesDir, nombreArchivo)
+            val outputStream = FileOutputStream(archivo)
+
+            inputStream.copyTo(outputStream)
+            inputStream.close()
+            outputStream.close()
+
+            rutaImagenGuardada = archivo.absolutePath
+            Toast.makeText(this, "Imagen guardada correctamente", Toast.LENGTH_SHORT).show()
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error al guardar la imagen: ${e.message}", Toast.LENGTH_LONG).show()
+            e.printStackTrace()
+        }
+    }
+
+    private fun guardarPrenda() {
+        val nombre = etNombrePrenda.text.toString().trim()
+        val categoria = spinnerCategoria.selectedItem.toString()
+        val color = etColorPrenda.text.toString().trim()
+        
+        // Debug: Verificar la categoría seleccionada
+        println("Categoría seleccionada: '$categoria'")
+        println("Posición del spinner: ${spinnerCategoria.selectedItemPosition}")
+
+        when {
+            nombre.isEmpty() -> {
+                Toast.makeText(this, "Ingrese el nombre de la prenda", Toast.LENGTH_SHORT).show()
+                return
+            }
+            categoria == "Seleccionar categoría" || spinnerCategoria.selectedItemPosition == 0 -> {
+                Toast.makeText(this, "Seleccione una categoría válida", Toast.LENGTH_SHORT).show()
+                return
+            }
+            color.isEmpty() -> {
+                Toast.makeText(this, "Ingrese el color de la prenda", Toast.LENGTH_SHORT).show()
+                return
+            }
+            rutaImagenGuardada.isNullOrEmpty() -> {
+                Toast.makeText(this, "Seleccione una imagen", Toast.LENGTH_SHORT).show()
+                return
+            }
+        }
+
+        // Debug: mostrar valores antes de guardar
+        println("Debug - Guardando prenda:")
+        println("- Nombre: '$nombre'")
+        println("- Categoría: '$categoria'")
+        println("- Color: '$color'")
+        println("- Ruta imagen: '$rutaImagenGuardada'")
+        println("- Usuario ID: $usuarioId")
+        
+        // Debug: mostrar usuarios existentes y estructura de tabla
+        dbHelper.mostrarUsuariosExistentes()
+        dbHelper.mostrarEstructuraTabla()
+
+        try {
+            val exito = dbHelper.agregarPrenda(nombre, categoria, color, rutaImagenGuardada!!, usuarioId)
+            
+            if (exito) {
+                Toast.makeText(this, "Prenda agregada exitosamente", Toast.LENGTH_SHORT).show()
+                finish()
+            } else {
+                Toast.makeText(this, "Error al agregar la prenda en la base de datos", Toast.LENGTH_SHORT).show()
+            }
+        } catch (e: Exception) {
+            Toast.makeText(this, "Error inesperado: ${e.message}", Toast.LENGTH_LONG).show()
+            e.printStackTrace()
+        }
     }
 }

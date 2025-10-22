@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -19,14 +20,25 @@
             android:gravity="center"
             android:layout_marginBottom="16dp" />
 
-        <ImageView
-            android:id="@+id/iv_preview_prenda"
+        <androidx.cardview.widget.CardView
             android:layout_width="200dp"
             android:layout_height="200dp"
             android:layout_gravity="center"
-            android:background="@color/teal_200"
-            android:scaleType="centerCrop"
-            android:layout_marginBottom="16dp" />
+            android:layout_marginBottom="16dp"
+            app:cardCornerRadius="12dp"
+            app:cardElevation="4dp"
+            android:foreground="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:id="@+id/iv_preview_prenda"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@color/teal_200"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_add_photo"
+                android:padding="32dp" />
+
+        </androidx.cardview.widget.CardView>
 
         <EditText
             android:id="@+id/et_nombre_prenda"

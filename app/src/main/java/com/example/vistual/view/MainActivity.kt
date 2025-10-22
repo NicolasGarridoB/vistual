@@ -7,6 +7,8 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -28,6 +30,8 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var topsAdapter: PrendaAdapter
     private lateinit var bottomsAdapter: PrendaAdapter
+    private lateinit var zapatosAdapter: PrendaAdapter
+    private lateinit var accesoriosAdapter: PrendaAdapter
 
 
     private val requestPermissionLauncher =
@@ -66,27 +70,63 @@ class MainActivity : AppCompatActivity() {
         }
 
         usuarioId = sharedPreferences.getInt("id_usuario", -1)
+        
+        // Migración de datos antiguos si es necesario
+        if (usuarioId == -1) {
+            migrarDatosAntiguos()
+            usuarioId = sharedPreferences.getInt("id_usuario", -1)
+        }
 
+        configurarToolbar()
         inicializarVistas()
         cargarPrendas()
+    }
+
+    private fun migrarDatosAntiguos() {
+        // Intentar obtener datos de otras posibles ubicaciones de SharedPreferences
+        val oldPrefs1 = getSharedPreferences("usuario_data", MODE_PRIVATE)
+        val oldUserId1 = oldPrefs1.getInt("usuario_id", -1)
+        
+        if (oldUserId1 != -1) {
+            // Migrar datos al nuevo formato
+            val editor = sharedPreferences.edit()
+            editor.putInt("id_usuario", oldUserId1)
+            editor.putBoolean("logged_in", true)
+            editor.apply()
+            
+            // Limpiar datos antiguos
+            oldPrefs1.edit().clear().apply()
+            
+            Toast.makeText(this, "Datos de usuario migrados", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    private fun configurarToolbar() {
+        val toolbar = findViewById<com.google.android.material.appbar.MaterialToolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
     }
 
     private fun inicializarVistas() {
 
         val recyclerViewTops = findViewById<RecyclerView>(R.id.recycler_view_tops)
         val recyclerViewBottoms = findViewById<RecyclerView>(R.id.recycler_view_bottoms)
+        val recyclerViewZapatos = findViewById<RecyclerView>(R.id.recycler_view_zapatos)
+        val recyclerViewAccesorios = findViewById<RecyclerView>(R.id.recycler_view_accesorios)
         val fabAgregarPrenda = findViewById<FloatingActionButton>(R.id.fab_agregar_prenda)
-
 
         topsAdapter = PrendaAdapter(mutableListOf())
         bottomsAdapter = PrendaAdapter(mutableListOf())
+        zapatosAdapter = PrendaAdapter(mutableListOf())
+        accesoriosAdapter = PrendaAdapter(mutableListOf())
 
         recyclerViewTops.adapter = topsAdapter
         recyclerViewBottoms.adapter = bottomsAdapter
-
+        recyclerViewZapatos.adapter = zapatosAdapter
+        recyclerViewAccesorios.adapter = accesoriosAdapter
 
         fabAgregarPrenda.setOnClickListener {
-            verificarPermisoAlmacenamiento()
+            val intent = Intent(this, AgregarPrendaActivity::class.java)
+            startActivity(intent)
         }
     }
 
@@ -127,7 +167,7 @@ class MainActivity : AppCompatActivity() {
         AlertDialog.Builder(this)
             .setTitle("¿Qué tipo de prenda es?")
             .setItems(tipos) { dialog, which ->
-                val tipoSeleccionado = if (which == 0) "TOP" else "BOTTOM"
+                val tipoSeleccionado = if (which == 0) "Top" else "Bottom"
                 // Persistimos el permiso para poder acceder a la URI más tarde
                 val flag = Intent.FLAG_GRANT_READ_URI_PERMISSION
                 contentResolver.takePersistableUriPermission(imagenUri, flag)
@@ -166,12 +206,15 @@ class MainActivity : AppCompatActivity() {
 
         val todasLasPrendas = dbHelper.obtenerPrendasUsuario(usuarioId)
 
-
-        val prendasSuperiores = todasLasPrendas.filter { it.tipo == "TOP" }
-        val prendasInferiores = todasLasPrendas.filter { it.tipo == "BOTTOM" }
+        val prendasSuperiores = todasLasPrendas.filter { it.tipo == "Top" }
+        val prendasInferiores = todasLasPrendas.filter { it.tipo == "Bottom" }
+        val zapatos = todasLasPrendas.filter { it.tipo == "Zapatos" }
+        val accesorios = todasLasPrendas.filter { it.tipo == "Accesorios" }
 
         topsAdapter.actualizarPrendas(prendasSuperiores)
         bottomsAdapter.actualizarPrendas(prendasInferiores)
+        zapatosAdapter.actualizarPrendas(zapatos)
+        accesoriosAdapter.actualizarPrendas(accesorios)
     }
 
     private fun cerrarSesion() {
@@ -191,6 +234,21 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
         if (usuarioId != -1) {
             cargarPrendas()
+        }
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu?): Boolean {
+        menuInflater.inflate(R.menu.menu_main, menu)
+        return true
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when (item.itemId) {
+            R.id.action_logout -> {
+                cerrarSesion()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
         }
     }
 }
