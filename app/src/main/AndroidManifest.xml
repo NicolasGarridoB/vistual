@@ -22,7 +22,7 @@
         
         <!-- Actividad de Login como actividad principal -->
         <activity
-            android:name=".LoginActivity"
+            android:name=".view.LoginActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -32,17 +32,17 @@
         
         <!-- Actividad de Registro -->
         <activity
-            android:name=".RegisterActivity"
+            android:name=".view.RegisterActivity"
             android:exported="false" />
         
         <!-- Actividad Principal del Closet -->
         <activity
-            android:name=".MainActivity"
+            android:name=".view.MainActivity"
             android:exported="false" />
             
         <!-- Actividad para Agregar Prendas -->
         <activity
-            android:name=".AgregarPrendaActivity"
+            android:name=".view.AgregarPrendaActivity"
             android:exported="false" />
             
     </application>
