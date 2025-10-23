@@ -190,7 +190,6 @@ class MainActivity : AppCompatActivity() {
         accesoriosAdapter.actualizarPrendas(accesorios)
 
         // Scroll hasta una posición intermedia para obtener un efecto infinito
-t
         if (prendasSuperiores.isNotEmpty()) {
             val startPosition = Integer.MAX_VALUE / 2
             recyclerViewTops.scrollToPosition(startPosition - (startPosition % prendasSuperiores.size))
