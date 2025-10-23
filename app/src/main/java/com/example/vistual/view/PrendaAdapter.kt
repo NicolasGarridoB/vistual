@@ -20,7 +20,7 @@ class PrendaAdapter(
     private val context: Context, 
     private var prendas: MutableList<Prenda>,
     private val dbHelper: DBHelper,
-    @LayoutRes private val layoutId: Int // NEW: Layout resource ID
+    @LayoutRes private val layoutId: Int
 ) : RecyclerView.Adapter<PrendaAdapter.PrendaViewHolder>() {
 
     inner class PrendaViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -28,7 +28,7 @@ class PrendaAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PrendaViewHolder {
-        // Use the layoutId passed in the constructor
+        // Utilice el layoutId pasado en el constructor
         val view = LayoutInflater.from(parent.context).inflate(layoutId, parent, false)
         return PrendaViewHolder(view)
     }
