@@ -32,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var zapatosAdapter: PrendaAdapter
     private lateinit var accesoriosAdapter: PrendaAdapter
 
-    // RecyclerViews as class properties
+    // RecyclerViews como propiedades de clase
     private lateinit var recyclerViewTops: RecyclerView
     private lateinit var recyclerViewBottoms: RecyclerView
     private lateinit var recyclerViewZapatos: RecyclerView
@@ -103,7 +103,7 @@ class MainActivity : AppCompatActivity() {
         recyclerViewAccesorios = findViewById(R.id.recycler_view_accesorios)
         val fabAgregarPrenda = findViewById<FloatingActionButton>(R.id.fab_agregar_prenda)
 
-        // Use the correct layout for each adapter
+        // Utilizar el diseño correcto para cada adaptador
         topsAdapter = PrendaAdapter(this, mutableListOf(), dbHelper, R.layout.item_prenda_carrusel)
         bottomsAdapter = PrendaAdapter(this, mutableListOf(), dbHelper, R.layout.item_prenda_inferior_carrusel)
         zapatosAdapter = PrendaAdapter(this, mutableListOf(), dbHelper, R.layout.item_prenda_carrusel)
@@ -189,7 +189,8 @@ class MainActivity : AppCompatActivity() {
         zapatosAdapter.actualizarPrendas(zapatos)
         accesoriosAdapter.actualizarPrendas(accesorios)
 
-        // Scroll to a middle position for infinite effect
+        // Scroll hasta una posición intermedia para obtener un efecto infinito
+t
         if (prendasSuperiores.isNotEmpty()) {
             val startPosition = Integer.MAX_VALUE / 2
             recyclerViewTops.scrollToPosition(startPosition - (startPosition % prendasSuperiores.size))
