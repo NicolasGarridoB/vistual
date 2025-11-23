@@ -9,5 +9,6 @@ import androidx.room.TypeConverters
 data class Outfit(
     @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombre: String,
-    val prendaIds: List<Int> // Almacenará los IDs de las prendas que componen el outfit
+    val prendasIds: List<Int>, // Almacenará los IDs de las prendas que componen el outfit
+    val usuarioId: Int = 0 // Usuario dueño del outfit
 )

@@ -21,12 +21,12 @@ class OutfitViewModel(private val repository: OutfitRepository) : ViewModel() {
     /**
      * Guarda un nuevo outfit en la base de datos.
      * @param nombre El nombre personalizado para el outfit.
-     * @param prendaIds La lista de IDs de las prendas que componen el outfit.
+     * @param prendasIds La lista de IDs de las prendas que componen el outfit.
      */
-    fun saveOutfit(nombre: String, prendaIds: List<Int>) {
+    fun saveOutfit(nombre: String, prendasIds: List<Int>) {
         viewModelScope.launch {
-            if (nombre.isNotBlank() && prendaIds.isNotEmpty()) {
-                val newOutfit = Outfit(nombre = nombre, prendaIds = prendaIds)
+            if (nombre.isNotBlank() && prendasIds.isNotEmpty()) {
+                val newOutfit = Outfit(nombre = nombre, prendasIds = prendasIds)
                 repository.insert(newOutfit)
             }
         }
