@@ -1,5 +1,6 @@
 package com.example.vistual.viewmodel
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -12,6 +13,8 @@ import com.example.vistual.repository.PrendaRepository
 import kotlinx.coroutines.launch
 
 class AgregarPrendaViewModel(private val prendaRepository: PrendaRepository) : ViewModel() {
+
+    private val TAG = "AgregarPrendaViewModel"
 
     private val _agregarPrendaState = mutableStateOf(AgregarPrendaState())
     val agregarPrendaState: State<AgregarPrendaState> = _agregarPrendaState
@@ -32,6 +35,7 @@ class AgregarPrendaViewModel(private val prendaRepository: PrendaRepository) : V
 
     fun inicializar(userId: Int) {
         currentUserId = userId
+        Log.d(TAG, "AgregarPrendaViewModel inicializado con userId: $userId")
     }
 
     fun actualizarNombre(nombre: String) {
@@ -51,8 +55,12 @@ class AgregarPrendaViewModel(private val prendaRepository: PrendaRepository) : V
     }
 
     fun agregarPrenda() {
+        Log.d(TAG, "agregarPrenda llamado - userId: $currentUserId, nombre: ${_nombrePrenda.value}, imagen: ${_imagenPath.value}")
+        
         if (_nombrePrenda.value.isBlank() || _imagenPath.value.isBlank() || currentUserId == -1) {
-            _agregarPrendaState.value = AgregarPrendaState(errorMessage = "Todos los campos son obligatorios.")
+            val error = "Todos los campos son obligatorios. userId=$currentUserId, nombre=${_nombrePrenda.value.isBlank()}, imagen=${_imagenPath.value.isBlank()}"
+            Log.e(TAG, error)
+            _agregarPrendaState.value = AgregarPrendaState(errorMessage = error)
             return
         }
 
@@ -66,9 +74,18 @@ class AgregarPrendaViewModel(private val prendaRepository: PrendaRepository) : V
                     imagenPath = _imagenPath.value,
                     usuarioId = currentUserId
                 )
-                prendaRepository.insert(nuevaPrenda)
-                _agregarPrendaState.value = AgregarPrendaState(isSuccess = true)
+                Log.d(TAG, "Intentando insertar prenda: $nuevaPrenda")
+                val resultado = prendaRepository.insert(nuevaPrenda)
+                if (resultado.isSuccess) {
+                    Log.d(TAG, "Prenda insertada exitosamente")
+                    _agregarPrendaState.value = AgregarPrendaState(isSuccess = true)
+                } else {
+                    val errorMsg = "Error al guardar: ${resultado.exceptionOrNull()?.message}"
+                    Log.e(TAG, errorMsg)
+                    _agregarPrendaState.value = AgregarPrendaState(errorMessage = errorMsg)
+                }
             } catch (e: Exception) {
+                Log.e(TAG, "Excepción al guardar prenda", e)
                 _agregarPrendaState.value = AgregarPrendaState(errorMessage = "Error al guardar la prenda: ${e.message}")
             }
         }

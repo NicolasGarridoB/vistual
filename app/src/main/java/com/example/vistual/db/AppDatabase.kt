@@ -10,7 +10,7 @@ import com.example.vistual.model.Prenda
 import com.example.vistual.model.PrendaIdConverter
 import com.example.vistual.model.Usuario
 
-@Database(entities = [Prenda::class, Outfit::class, Usuario::class], version = 2, exportSchema = false) // Incrementar versión por cambio de schema
+@Database(entities = [Prenda::class, Outfit::class, Usuario::class], version = 3, exportSchema = false) // Versión 3: Fix sincronización Flow
 @TypeConverters(PrendaIdConverter::class)
 abstract class AppDatabase : RoomDatabase() {
 

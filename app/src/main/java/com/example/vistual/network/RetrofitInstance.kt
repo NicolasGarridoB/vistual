@@ -15,8 +15,16 @@ import java.util.concurrent.TimeUnit
  * - Logging de peticiones (útil para debugging)
  * - Conversión automática JSON con Gson
  * - Interceptor para manejar tokens de autenticación
+ * - Modo local: Desactiva llamadas a servidor cuando LOCAL_MODE = true
  */
 object RetrofitInstance {
+    
+    /**
+     * MODO LOCAL
+     * Configura en true para trabajar 100% offline (solo BD interna Room)
+     * Configura en false para sincronizar con servidor (BD externa)
+     */
+    const val LOCAL_MODE = true // Cambiar a false cuando tengas servidor
     
     /**
      * URL BASE DE LA API
