@@ -108,7 +108,7 @@ fun AgregarPrendaScreen(
             navigationIcon = {
                 IconButton(onClick = onBack) {
                     Icon(
-                        imageVector = Icons.Default.ArrowBack,
+                        imageVector = Icons.Filled.ArrowBack,
                         contentDescription = "Volver"
                     )
                 }
@@ -159,7 +159,7 @@ fun AgregarPrendaScreen(
                             horizontalAlignment = Alignment.CenterHorizontally
                         ) {
                             Icon(
-                                imageVector = Icons.Default.CameraAlt,
+                                imageVector = Icons.Filled.CameraAlt,
                                 contentDescription = "Cámara",
                                 modifier = Modifier.size(48.dp),
                                 tint = MaterialTheme.colorScheme.primary
@@ -190,7 +190,7 @@ fun AgregarPrendaScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Icon(
-                    imageVector = Icons.Default.CameraAlt,
+                    imageVector = Icons.Filled.CameraAlt,
                     contentDescription = "Cámara"
                 )
                 Spacer(modifier = Modifier.width(8.dp))
@@ -353,9 +353,10 @@ fun AgregarPrendaScreen(
             Spacer(modifier = Modifier.height(16.dp))
             
             // Mensaje de error
-            if (agregarPrendaState.errorMessage != null) {
+            val errorMessage = agregarPrendaState.errorMessage
+            if (errorMessage != null) {
                 Text(
-                    text = agregarPrendaState.errorMessage,
+                    text = errorMessage,
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.bodyMedium,
                     textAlign = TextAlign.Center,
@@ -382,19 +383,16 @@ fun AgregarPrendaScreen(
                     )
                 } else {
                     Icon(
-                        imageVector = Icons.Default.Check,
+                        imageVector = Icons.Filled.Check,
                         contentDescription = "Guardar"
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
-                        text = "Guardar Prenda",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.SemiBold
+                        "Guardar Prenda",
+                        fontSize = 16.sp
                     )
                 }
             }
-            
-            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }

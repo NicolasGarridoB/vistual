@@ -1,182 +1,108 @@
 package com.example.vistual.ui
 
-import android.content.Context
-import android.content.SharedPreferences
-import androidx.compose.runtime.*
+import android.app.Activity
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.vistual.VistualApplication
 import com.example.vistual.ui.theme.VistualTheme
-import com.example.vistual.viewmodel.AgregarPrendaViewModel
 import com.example.vistual.viewmodel.AuthViewModel
 import com.example.vistual.viewmodel.MainViewModel
+import com.example.vistual.viewmodel.AgregarPrendaViewModel
+import com.example.vistual.viewmodel.OutfitViewModel
+import com.example.vistual.viewmodel.ViewModelFactory
 
 /**
  * Configuración de navegación principal de la aplicación
- * Implementa Navigation Compose - cumple con menú de navegación de la rúbrica
- * Maneja el estado de sesión del usuario
  */
 @Composable
 fun VistualApp() {
     val context = LocalContext.current
+    val application = context.applicationContext as VistualApplication
     val navController = rememberNavController()
-    
-    // ViewModels compartidos entre pantallas
-    val authViewModel = remember { AuthViewModel(context) }
-    val mainViewModel = remember { MainViewModel(context) }
-    val agregarPrendaViewModel = remember { AgregarPrendaViewModel(context) }
-    
-    // SharedPreferences para manejo de sesión
-    val sharedPreferences = remember {
-        context.getSharedPreferences("ClosetVirtual", Context.MODE_PRIVATE)
-    }
-    
-    // Variable para controlar si el usuario está logueado - requisito de variables
-    var isLoggedIn by remember { 
-        mutableStateOf(sharedPreferences.getBoolean("logged_in", false)) 
-    }
-    var usuarioId by remember { 
-        mutableStateOf(sharedPreferences.getInt("id_usuario", -1)) 
-    }
-    var usuarioEmail by remember { 
-        mutableStateOf(sharedPreferences.getString("correo_usuario", "") ?: "") 
-    }
-    
-    // Función para guardar sesión - cumple con requisito de "Una función"
-    fun guardarSesion(id: Int, email: String) {
-        with(sharedPreferences.edit()) {
-            putBoolean("logged_in", true)
-            putInt("id_usuario", id)
-            putString("correo_usuario", email)
-            apply()
-        }
-        isLoggedIn = true
-        usuarioId = id
-        usuarioEmail = email
-        mainViewModel.inicializar(id)
-    }
-    
-    // Función para cerrar sesión
-    fun cerrarSesion() {
-        with(sharedPreferences.edit()) {
-            clear()
-            apply()
-        }
-        isLoggedIn = false
-        usuarioId = -1
-        usuarioEmail = ""
-    }
-    
-    // Aplicar tema de Material Design
+
+    // ViewModelFactory para crear todos los ViewModels
+    val factory = ViewModelFactory(
+        prendaRepository = application.prendaRepository,
+        outfitRepository = application.outfitRepository,
+        userRepository = application.userRepository
+    )
+
+    // Instancias de ViewModel obtenidas de la factory
+    val authViewModel: AuthViewModel = viewModel(factory = factory)
+    val mainViewModel: MainViewModel = viewModel(factory = factory)
+    val agregarPrendaViewModel: AgregarPrendaViewModel = viewModel(factory = factory)
+    val outfitViewModel: OutfitViewModel = viewModel(factory = factory)
+
     VistualTheme {
         NavHost(
             navController = navController,
-            startDestination = if (isLoggedIn) "main" else "login"
+            startDestination = if (authViewModel.isLoggedIn()) NavigationRoutes.MAIN else NavigationRoutes.LOGIN
         ) {
-            // Pantalla de Login
-            composable("login") {
+            composable(NavigationRoutes.LOGIN) {
                 LoginScreen(
                     authViewModel = authViewModel,
-                    onLoginSuccess = { id ->
-                        // Condicional para validar login exitoso
-                        if (id != -1) {
-                            // Obtener email del estado del ViewModel
-                            val email = authViewModel.loginState.value.usuario?.correo ?: ""
-                            guardarSesion(id, email)
-                            navController.navigate("main") {
-                                popUpTo("login") { inclusive = true }
-                            }
-                        }
-                    },
-                    onNavigateToRegister = {
-                        navController.navigate("register")
-                    }
+                    onLoginSuccess = { navController.navigateToMain() },
+                    onNavigateToRegister = { navController.navigate(NavigationRoutes.REGISTER) }
                 )
             }
-            
-            // Pantalla de Registro
-            composable("register") {
+            composable(NavigationRoutes.REGISTER) {
                 RegisterScreen(
                     authViewModel = authViewModel,
-                    onRegisterSuccess = {
-                        authViewModel.reiniciarEstadoRegistro()
-                        navController.navigate("login") {
-                            popUpTo("register") { inclusive = true }
-                        }
-                    },
-                    onNavigateToLogin = {
-                        navController.popBackStack()
-                    }
+                    onRegisterSuccess = { navController.navigateToLogin() },
+                    onNavigateToLogin = { navController.popBackStack() }
                 )
             }
-            
-            // Pantalla Principal
-            composable("main") {
-                // Inicializar ViewModel si es necesario
-                LaunchedEffect(usuarioId) {
-                    if (usuarioId != -1) {
-                        mainViewModel.inicializar(usuarioId)
-                    }
-                }
-                
+            composable(NavigationRoutes.MAIN) {
                 MainScreen(
                     mainViewModel = mainViewModel,
-                    usuarioEmail = usuarioEmail,
-                    onAddPrenda = {
-                        agregarPrendaViewModel.inicializar(usuarioId)
-                        navController.navigate("agregar_prenda")
-                    },
+                    usuarioEmail = authViewModel.currentUserEmail(),
+                    onAddPrenda = { navController.navigate(NavigationRoutes.AGREGAR_PRENDA) },
                     onLogout = {
-                        cerrarSesion()
-                        navController.navigate("login") {
-                            popUpTo("main") { inclusive = true }
-                        }
+                        authViewModel.logout()
+                        navController.navigateToLogin()
+                    },
+                    onNavigateToSavedOutfits = { navController.navigate(NavigationRoutes.SAVED_OUTFITS) }
+                )
+            }
+            composable(NavigationRoutes.AGREGAR_PRENDA) {
+                val userId = authViewModel.currentUser?.id ?: -1
+                LaunchedEffect(userId) {
+                    if (userId != -1) {
+                        agregarPrendaViewModel.inicializar(userId)
+                    }
+                }
+                AgregarPrendaScreen(
+                    agregarPrendaViewModel = agregarPrendaViewModel,
+                    onBack = { navController.popBackStack() },
+                    onPrendaAgregada = {
+                        mainViewModel.cargarPrendas()
+                        navController.popBackStack()
                     }
                 )
             }
-            
-            // Pantalla para Agregar Prenda
-            composable("agregar_prenda") {
-                // Inicializar ViewModel con ID de usuario
-                LaunchedEffect(usuarioId) {
-                    if (usuarioId != -1) {
-                        agregarPrendaViewModel.inicializar(usuarioId)
-                    }
-                }
-                
-                AgregarPrendaScreen(
-                    agregarPrendaViewModel = agregarPrendaViewModel,
-                    onBack = {
-                        agregarPrendaViewModel.reiniciarEstado()
-                        navController.popBackStack()
-                    },
-                    onPrendaAgregada = {
-                        // Recargar las prendas en la pantalla principal
-                        mainViewModel.cargarPrendas()
-                        agregarPrendaViewModel.reiniciarEstado()
-                        navController.popBackStack()
-                    }
+            composable(NavigationRoutes.SAVED_OUTFITS) {
+                SavedOutfitsScreen(
+                    outfitViewModel = outfitViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }
     }
 }
 
-/**
- * Rutas de navegación de la aplicación
- * Organizadas para fácil mantenimiento
- */
 object NavigationRoutes {
     const val LOGIN = "login"
     const val REGISTER = "register"
     const val MAIN = "main"
     const val AGREGAR_PRENDA = "agregar_prenda"
+    const val SAVED_OUTFITS = "saved_outfits"
 }
 
-/**
- * Extensiones útiles para navegación
- */
 fun androidx.navigation.NavController.navigateToLogin() {
     navigate(NavigationRoutes.LOGIN) {
         popUpTo(graph.startDestinationId) { inclusive = true }

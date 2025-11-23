@@ -1,14 +1,20 @@
 package com.example.vistual.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import androidx.room.TypeConverters
+
 /**
- * Data class que representa una prenda de vestir
- * Cumple con el requisito de "Una clase" de la rúbrica
+ * Data class que representa una prenda de vestir, ahora como una entidad de Room.
+ * Cumple con el requisito de "Una clase" de la rúbrica.
  */
+@Entity(tableName = "prendas")
+@TypeConverters(EnumConverter::class)
 data class Prenda(
-    val id: Int = -1,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombre: String,
-    val categoria: String,
-    val color: String,
+    val categoria: CategoriaPrenda,
+    val color: ColorPrenda,
     val imagenPath: String,
     val usuarioId: Int,
     val fechaCreacion: String = System.currentTimeMillis().toString()

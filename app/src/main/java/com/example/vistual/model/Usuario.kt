@@ -1,14 +1,17 @@
 package com.example.vistual.model
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
 /**
- * Data class que representa un usuario en el sistema
- * Cumple con el requisito de "Una clase" de la rúbrica
+ * Data class que representa un usuario en el sistema, ahora como entidad de Room.
  */
+@Entity(tableName = "usuarios")
 data class Usuario(
-    val id: Int = -1,
+    @PrimaryKey(autoGenerate = true) val id: Int = 0,
     val nombre: String,
     val correo: String,
-    val password: String
+    val password: String // En una app real, esto debería ser un hash.
 )
 
 /**

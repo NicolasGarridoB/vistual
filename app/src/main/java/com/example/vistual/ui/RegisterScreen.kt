@@ -22,8 +22,7 @@ import androidx.compose.ui.unit.sp
 import com.example.vistual.viewmodel.AuthViewModel
 
 /**
- * Pantalla de Registro convertida a Jetpack Compose
- * Cumple con los requisitos de la rúbrica: Material Design y formularios
+ * Pantalla de Registro
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,7 +31,6 @@ fun RegisterScreen(
     onRegisterSuccess: () -> Unit,
     onNavigateToLogin: () -> Unit
 ) {
-    // Variables de estado para el formulario - requisito de variables
     var nombre by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
@@ -40,10 +38,8 @@ fun RegisterScreen(
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmarPasswordVisible by remember { mutableStateOf(false) }
     
-    // Estados del ViewModel
     val registerState by authViewModel.registerState
     
-    // Efecto para manejar el registro exitoso
     LaunchedEffect(registerState.isRegistered) {
         if (registerState.isRegistered) {
             onRegisterSuccess()
@@ -57,7 +53,6 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Título
         Text(
             text = "Crear Cuenta",
             style = MaterialTheme.typography.headlineLarge,
@@ -76,61 +71,60 @@ fun RegisterScreen(
         )
         
         Spacer(modifier = Modifier.height(32.dp))
+
+        val errorMessage = registerState.errorMessage
         
-        // Campo de nombre
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it },
             label = { Text("Nombre completo") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Person,
+                    imageVector = Icons.Filled.Person,
                     contentDescription = "Nombre"
                 )
             },
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            isError = registerState.errorMessage?.contains("nombre") == true
+            isError = errorMessage?.contains("nombre") == true
         )
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Campo de email
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Correo electrónico") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Email,
+                    imageVector = Icons.Filled.Email,
                     contentDescription = "Email"
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            isError = registerState.errorMessage?.contains("email") == true ||
-                     registerState.errorMessage?.contains("correo") == true
+            isError = errorMessage?.contains("email") == true ||
+                     errorMessage?.contains("correo") == true
         )
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Campo de contraseña
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Lock,
+                    imageVector = Icons.Filled.Lock,
                     contentDescription = "Password"
                 )
             },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility 
-                                     else Icons.Default.VisibilityOff,
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility 
+                                     else Icons.Filled.VisibilityOff,
                         contentDescription = if (passwordVisible) "Ocultar contraseña" 
                                            else "Mostrar contraseña"
                     )
@@ -141,27 +135,26 @@ fun RegisterScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            isError = registerState.errorMessage?.contains("contraseña") == true
+            isError = errorMessage?.contains("contraseña") == true
         )
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Campo de confirmar contraseña
         OutlinedTextField(
             value = confirmarPassword,
             onValueChange = { confirmarPassword = it },
             label = { Text("Confirmar contraseña") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Lock,
+                    imageVector = Icons.Filled.Lock,
                     contentDescription = "Confirmar Password"
                 )
             },
             trailingIcon = {
                 IconButton(onClick = { confirmarPasswordVisible = !confirmarPasswordVisible }) {
                     Icon(
-                        imageVector = if (confirmarPasswordVisible) Icons.Default.Visibility 
-                                     else Icons.Default.VisibilityOff,
+                        imageVector = if (confirmarPasswordVisible) Icons.Filled.Visibility 
+                                     else Icons.Filled.VisibilityOff,
                         contentDescription = if (confirmarPasswordVisible) "Ocultar contraseña" 
                                            else "Mostrar contraseña"
                     )
@@ -172,15 +165,14 @@ fun RegisterScreen(
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            isError = registerState.errorMessage?.contains("coinciden") == true
+            isError = errorMessage?.contains("coinciden") == true
         )
         
         Spacer(modifier = Modifier.height(8.dp))
         
-        // Mensaje de error
-        if (registerState.errorMessage != null) {
+        if (errorMessage != null) {
             Text(
-                text = registerState.errorMessage,
+                text = errorMessage,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center
@@ -189,12 +181,8 @@ fun RegisterScreen(
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Botón de registro - cumple con requisito de botones con funciones
         Button(
-            onClick = {
-                authViewModel.limpiarErrores()
-                authViewModel.register(nombre, email, password, confirmarPassword)
-            },
+            onClick = { authViewModel.register(nombre, email, password, confirmarPassword) },
             enabled = !registerState.isLoading && 
                      nombre.isNotBlank() && 
                      email.isNotBlank() && 
@@ -220,7 +208,6 @@ fun RegisterScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Botón para ir al login
         TextButton(
             onClick = onNavigateToLogin,
             enabled = !registerState.isLoading

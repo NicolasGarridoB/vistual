@@ -11,7 +11,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -22,32 +21,28 @@ import androidx.compose.ui.unit.sp
 import com.example.vistual.viewmodel.AuthViewModel
 
 /**
- * Pantalla de Login convertida a Jetpack Compose
- * Cumple con los requisitos de la rúbrica: Material Design y formularios
+ * Pantalla de Login
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LoginScreen(
     authViewModel: AuthViewModel,
-    onLoginSuccess: (Int) -> Unit,
+    onLoginSuccess: () -> Unit,
     onNavigateToRegister: () -> Unit
 ) {
-    // Variables de estado para el formulario - requisito de variables
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     
-    // Estados del ViewModel
     val loginState by authViewModel.loginState
-    val context = LocalContext.current
     
     // Efecto para manejar el login exitoso
     LaunchedEffect(loginState.isLoggedIn) {
-        if (loginState.isLoggedIn && loginState.usuario != null) {
-            onLoginSuccess(loginState.usuario.id)
+        if (loginState.isLoggedIn) {
+            onLoginSuccess()
         }
     }
-    
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -55,7 +50,6 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        // Título principal
         Text(
             text = "Closet Virtual",
             style = MaterialTheme.typography.headlineLarge,
@@ -63,73 +57,72 @@ fun LoginScreen(
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         Text(
             text = "Organiza tu guardarropa",
             style = MaterialTheme.typography.bodyLarge,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center
         )
-        
+
         Spacer(modifier = Modifier.height(32.dp))
-        
-        // Campo de email
+
+        val errorMessage = loginState.errorMessage
+
         OutlinedTextField(
             value = email,
             onValueChange = { email = it },
             label = { Text("Correo electrónico") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Email,
+                    imageVector = Icons.Filled.Email,
                     contentDescription = "Email"
                 )
             },
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            isError = loginState.errorMessage?.contains("email") == true
+            isError = errorMessage?.contains("email") == true
         )
-        
+
         Spacer(modifier = Modifier.height(16.dp))
-        
-        // Campo de contraseña
+
         OutlinedTextField(
             value = password,
             onValueChange = { password = it },
             label = { Text("Contraseña") },
             leadingIcon = {
                 Icon(
-                    imageVector = Icons.Default.Lock,
+                    imageVector = Icons.Filled.Lock,
                     contentDescription = "Password"
                 )
             },
             trailingIcon = {
                 IconButton(onClick = { passwordVisible = !passwordVisible }) {
                     Icon(
-                        imageVector = if (passwordVisible) Icons.Default.Visibility 
-                                     else Icons.Default.VisibilityOff,
-                        contentDescription = if (passwordVisible) "Ocultar contraseña" 
+                        imageVector = if (passwordVisible) Icons.Filled.Visibility
+                                     else Icons.Filled.VisibilityOff,
+                        contentDescription = if (passwordVisible) "Ocultar contraseña"
                                            else "Mostrar contraseña"
                     )
                 }
             },
-            visualTransformation = if (passwordVisible) VisualTransformation.None 
+            visualTransformation = if (passwordVisible) VisualTransformation.None
                                  else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
             modifier = Modifier.fillMaxWidth(),
             singleLine = true,
-            isError = loginState.errorMessage?.contains("contraseña") == true ||
-                     loginState.errorMessage?.contains("Credenciales") == true
+            isError = errorMessage?.contains("contraseña") == true ||
+                     errorMessage?.contains("Credenciales") == true
         )
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
-        // Mensaje de error
-        if (loginState.errorMessage != null) {
+
+        if (errorMessage != null) {
             Text(
-                text = loginState.errorMessage,
+                text = errorMessage,
                 color = MaterialTheme.colorScheme.error,
                 style = MaterialTheme.typography.bodySmall,
                 textAlign = TextAlign.Center
@@ -138,12 +131,8 @@ fun LoginScreen(
         
         Spacer(modifier = Modifier.height(24.dp))
         
-        // Botón de login - cumple con requisito de botones con funciones
         Button(
-            onClick = {
-                authViewModel.limpiarErrores()
-                authViewModel.login(email, password)
-            },
+            onClick = { authViewModel.login(email, password) },
             enabled = !loginState.isLoading && email.isNotBlank() && password.isNotBlank(),
             modifier = Modifier
                 .fillMaxWidth()
@@ -165,7 +154,6 @@ fun LoginScreen(
         
         Spacer(modifier = Modifier.height(16.dp))
         
-        // Botón de registro
         TextButton(
             onClick = onNavigateToRegister,
             enabled = !loginState.isLoading

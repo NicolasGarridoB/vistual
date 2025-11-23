@@ -11,13 +11,14 @@
     <uses-feature android:name="android.hardware.camera" android:required="true" />
 
     <application
+        android:name=".VistualApplication"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
-        android:supportsRtl="true"
+        android.supportsRtl="true"
         android:theme="@style/Theme.Vistual">
         
         <!-- MainActivity principal con toda la navegación en Compose -->
@@ -29,6 +30,13 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        
+        <!-- Activity para agregar una nueva prenda -->
+        <activity
+            android:name=".AgregarPrendaActivity"
+            android:exported="false"
+            android:theme="@style/Theme.Vistual">
         </activity>
             
     </application>

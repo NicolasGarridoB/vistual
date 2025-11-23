@@ -1,83 +1,70 @@
 package com.example.vistual.repository
 
-import android.content.Context
+import android.content.SharedPreferences
+import com.example.vistual.db.UsuarioDao
 import com.example.vistual.model.Usuario
-import com.example.vistual.model.DBHelper
 
-/**
- * Repository para manejar operaciones relacionadas con usuarios
- * Implementa el patrón Repository requerido por la rúbrica
- * Actúa como capa de abstracción entre ViewModels y la base de datos
- */
-class UserRepository(context: Context) {
-    
-    // Variable que cumple con el requisito de "Una variable" de la rúbrica
-    private val dbHelper = DBHelper(context)
-    
-    /**
-     * Función que cumple con el requisito de "Una función" de la rúbrica
-     * Registra un nuevo usuario en la base de datos
-     */
-    suspend fun registrarUsuario(usuario: Usuario): Boolean {
+class UserRepository(
+    private val usuarioDao: UsuarioDao,
+    private val sharedPreferences: SharedPreferences
+) {
+
+    suspend fun registrarUsuario(usuario: Usuario): Result<Unit> {
         return try {
-            dbHelper.registrarUsuario(
-                nombre = usuario.nombre,
-                correo = usuario.correo,
-                password = usuario.password
-            )
-        } catch (e: Exception) {
-            false
-        }
-    }
-    
-    /**
-     * Valida las credenciales de login de un usuario
-     */
-    suspend fun validarLogin(correo: String, password: String): Boolean {
-        return try {
-            dbHelper.validarLogin(correo, password)
-        } catch (e: Exception) {
-            false
-        }
-    }
-    
-    /**
-     * Obtiene el ID de un usuario por su correo
-     */
-    suspend fun obtenerIdUsuario(correo: String): Int {
-        return try {
-            dbHelper.obtenerIdUsuario(correo)
-        } catch (e: Exception) {
-            -1
-        }
-    }
-    
-    /**
-     * Obtiene un usuario completo por su correo
-     */
-    suspend fun obtenerUsuarioPorCorreo(correo: String): Usuario? {
-        return try {
-            val id = dbHelper.obtenerIdUsuario(correo)
-            if (id != -1) {
-                // Aquí necesitaríamos extender DBHelper para obtener datos completos del usuario
-                // Por ahora retornamos datos básicos
-                Usuario(id = id, nombre = "", correo = correo, password = "")
+            val existingUser = usuarioDao.getUsuarioByCorreo(usuario.correo)
+            if (existingUser != null) {
+                Result.failure(Exception("El correo ya está registrado."))
             } else {
-                null
+                usuarioDao.insertUsuario(usuario)
+                Result.success(Unit)
             }
         } catch (e: Exception) {
-            null
+            Result.failure(e)
         }
     }
-    
-    /**
-     * Verifica si un correo ya está registrado
-     */
-    suspend fun existeCorreo(correo: String): Boolean {
+
+    suspend fun validarCredenciales(correo: String, password: String): Result<Usuario> {
         return try {
-            obtenerIdUsuario(correo) != -1
+            val usuario = usuarioDao.validarCredenciales(correo, password)
+            if (usuario != null) {
+                saveUserSession(usuario)
+                Result.success(usuario)
+            } else {
+                Result.failure(Exception("Credenciales incorrectas."))
+            }
         } catch (e: Exception) {
-            false
+            Result.failure(e)
         }
+    }
+
+    fun logout() {
+        with(sharedPreferences.edit()) {
+            remove(KEY_USER_ID)
+            remove(KEY_USER_EMAIL)
+            apply()
+        }
+    }
+
+    fun getLoggedInUser(): Usuario? {
+        val userId = sharedPreferences.getInt(KEY_USER_ID, -1)
+        val userEmail = sharedPreferences.getString(KEY_USER_EMAIL, null)
+        if (userId == -1 || userEmail == null) {
+            return null
+        }
+        // No tenemos el nombre ni el password, pero para la sesión nos vale con el ID y el correo.
+        return Usuario(id = userId, correo = userEmail, nombre = "", password = "")
+    }
+
+    private fun saveUserSession(usuario: Usuario) {
+        with(sharedPreferences.edit()) {
+            putInt(KEY_USER_ID, usuario.id)
+            putString(KEY_USER_EMAIL, usuario.correo)
+            apply()
+        }
+    }
+
+    companion object {
+        private const val KEY_USER_ID = "user_id"
+        private const val KEY_USER_EMAIL = "user_email"
     }
 }
