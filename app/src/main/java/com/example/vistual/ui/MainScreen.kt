@@ -176,6 +176,7 @@ fun MainScreen(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryFilter(
     categoriaSeleccionada: CategoriaPrenda?,
