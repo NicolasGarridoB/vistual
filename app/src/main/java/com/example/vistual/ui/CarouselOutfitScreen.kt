@@ -44,7 +44,8 @@ fun CarouselOutfitScreen(
     onNavigateBack: () -> Unit,
     onNavigateToAddPrenda: () -> Unit
 ) {
-    val prendas by mainViewModel.prendas.collectAsState()
+    val prendasState by mainViewModel.prendasState
+    val prendas = prendasState.prendas
     
     // Estado para las prendas seleccionadas por sección
     var prendasSeleccionadas by remember { mutableStateOf<Map<SeccionOutfit, Prenda?>>(
