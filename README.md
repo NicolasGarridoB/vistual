@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="app/src/main/res/drawable/vistu.png" alt="Vistual Logo" width="200"/>
+</p>
+
 # Vistual - Closet Virtual Android
 
 Vistual es una aplicación Android moderna que permite gestionar tu closet virtual, tomar fotos de tu ropa, categorizarla y armar outfits. Desarrollada como proyecto universitario siguiendo las mejores prácticas de desarrollo Android.
@@ -294,4 +298,5 @@ Si no tienes servidor disponible, la app funciona completamente offline usando s
 **Última actualización**: Noviembre 2025  
 **Versión**: 1.0.0  
 **Estado**: ✅ Producción (todas las funcionalidades implementadas y testeadas)
+
 
