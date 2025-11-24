@@ -98,6 +98,7 @@ fun VistualApp() {
             composable(NavigationRoutes.SAVED_OUTFITS) {
                 SavedOutfitsScreen(
                     outfitViewModel = outfitViewModel,
+                    mainViewModel = mainViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
