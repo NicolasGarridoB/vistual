@@ -7,11 +7,13 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -31,6 +33,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.vistual.model.CategoriaPrenda
 import com.example.vistual.model.Prenda
 import com.example.vistual.viewmodel.MainViewModel
 import java.io.File
@@ -45,6 +48,7 @@ fun MainScreen(
     onNavigateToSavedOutfits: () -> Unit
 ) {
     val prendasState by mainViewModel.prendasState
+    val categoriaSeleccionada by mainViewModel.categoriaSeleccionada
     var modoSeleccion by remember { mutableStateOf(false) }
     var prendasSeleccionadas by remember { mutableStateOf<Set<Int>>(emptySet()) }
 
@@ -78,6 +82,14 @@ fun MainScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
+            // Filtro de categorías horizontal
+            if (!modoSeleccion && prendasState.prendas.isNotEmpty()) {
+                CategoryFilter(
+                    categoriaSeleccionada = categoriaSeleccionada,
+                    onCategoriaSeleccionada = { mainViewModel.seleccionarCategoria(it) }
+                )
+            }
+            
             when {
                 prendasState.isLoading -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -86,12 +98,44 @@ fun MainScreen(
                 }
                 prendasState.errorMessage != null -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("Error: ${prendasState.errorMessage}")
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Text("Error: ${prendasState.errorMessage}")
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Button(onClick = { mainViewModel.cargarPrendas() }) {
+                                Text("Reintentar")
+                            }
+                        }
                     }
                 }
                 prendasState.prendas.isEmpty() -> {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        Text("No tienes prendas aún. ¡Agrega la primera!")
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(32.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Filled.Checkroom,
+                                contentDescription = null,
+                                modifier = Modifier.size(64.dp),
+                                tint = MaterialTheme.colorScheme.primary
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = if (categoriaSeleccionada != null) {
+                                    "No tienes prendas en ${categoriaSeleccionada?.displayName}"
+                                } else {
+                                    "No tienes prendas aún"
+                                },
+                                style = MaterialTheme.typography.titleMedium,
+                                textAlign = TextAlign.Center
+                            )
+                            Spacer(modifier = Modifier.height(8.dp))
+                            Text(
+                                text = "¡Agrega tu primera prenda!",
+                                style = MaterialTheme.typography.bodyMedium,
+                                color = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                        }
                     }
                 }
                 else -> {
@@ -112,7 +156,6 @@ fun MainScreen(
                                         } else {
                                             prendasSeleccionadas + prenda.id
                                         }
-                                        // Si ya no quedan prendas seleccionadas, salimos del modo selección
                                         if (prendasSeleccionadas.isEmpty()) {
                                             modoSeleccion = false
                                         }
@@ -129,6 +172,56 @@ fun MainScreen(
                     }
                 }
             }
+        }
+    }
+}
+
+@Composable
+fun CategoryFilter(
+    categoriaSeleccionada: CategoriaPrenda?,
+    onCategoriaSeleccionada: (CategoriaPrenda?) -> Unit
+) {
+    val scrollState = rememberScrollState()
+    
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .horizontalScroll(scrollState)
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        // Chip "Todas"
+        FilterChip(
+            selected = categoriaSeleccionada == null,
+            onClick = { onCategoriaSeleccionada(null) },
+            label = { Text("Todas") },
+            leadingIcon = if (categoriaSeleccionada == null) {
+                {
+                    Icon(
+                        imageVector = Icons.Filled.Check,
+                        contentDescription = "Seleccionada",
+                        modifier = Modifier.size(18.dp)
+                    )
+                }
+            } else null
+        )
+        
+        // Chips de categorías
+        CategoriaPrenda.values().forEach { categoria ->
+            FilterChip(
+                selected = categoriaSeleccionada == categoria,
+                onClick = { onCategoriaSeleccionada(categoria) },
+                label = { Text(categoria.displayName) },
+                leadingIcon = if (categoriaSeleccionada == categoria) {
+                    {
+                        Icon(
+                            imageVector = Icons.Filled.Check,
+                            contentDescription = "Seleccionada",
+                            modifier = Modifier.size(18.dp)
+                        )
+                    }
+                } else null
+            )
         }
     }
 }

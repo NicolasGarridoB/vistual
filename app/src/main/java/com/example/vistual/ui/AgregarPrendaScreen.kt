@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CameraAlt
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.Image
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -68,7 +69,7 @@ fun AgregarPrendaScreen(
     // Estados para la cámara
     val cameraPermissionState = rememberPermissionState(Manifest.permission.CAMERA)
     
-    // Launcher para capturar imagen
+    // Launcher para capturar imagen con cámara
     val takePictureLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.TakePicturePreview()
     ) { bitmap: Bitmap? ->
@@ -79,6 +80,26 @@ fun AgregarPrendaScreen(
                 val fos = FileOutputStream(file)
                 bitmap.compress(Bitmap.CompressFormat.JPEG, 85, fos)
                 fos.close()
+                agregarPrendaViewModel.actualizarImagenPath(file.absolutePath)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+    
+    // Launcher para seleccionar imagen de galería
+    val pickImageLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.GetContent()
+    ) { uri ->
+        uri?.let {
+            try {
+                // Copiar imagen de galería a almacenamiento interno
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val file = File(context.filesDir, "prenda_${System.currentTimeMillis()}.jpg")
+                val outputStream = FileOutputStream(file)
+                inputStream?.copyTo(outputStream)
+                inputStream?.close()
+                outputStream.close()
                 agregarPrendaViewModel.actualizarImagenPath(file.absolutePath)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -177,27 +198,45 @@ fun AgregarPrendaScreen(
             
             Spacer(modifier = Modifier.height(8.dp))
             
-            // Botón para tomar foto - utiliza tecnología del teléfono (cámara)
-            Button(
-                onClick = {
-                    // Condicional para verificar permisos - requisito de condicionales
-                    if (cameraPermissionState.status.isGranted) {
-                        takePictureLauncher.launch(null)
-                    } else {
-                        cameraPermissionState.launchPermissionRequest()
-                    }
-                },
-                modifier = Modifier.fillMaxWidth()
+            // Botones para agregar imagen - cámara y galería
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Icon(
-                    imageVector = Icons.Filled.CameraAlt,
-                    contentDescription = "Cámara"
-                )
-                Spacer(modifier = Modifier.width(8.dp))
-                Text(
-                    text = if (imagenPath.isEmpty()) "Tomar Foto" else "Cambiar Foto",
-                    fontSize = 16.sp
-                )
+                // Botón para tomar foto con cámara
+                Button(
+                    onClick = {
+                        // Condicional para verificar permisos
+                        if (cameraPermissionState.status.isGranted) {
+                            takePictureLauncher.launch(null)
+                        } else {
+                            cameraPermissionState.launchPermissionRequest()
+                        }
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.CameraAlt,
+                        contentDescription = "Cámara"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Cámara")
+                }
+                
+                // Botón para seleccionar de galería
+                OutlinedButton(
+                    onClick = {
+                        pickImageLauncher.launch("image/*")
+                    },
+                    modifier = Modifier.weight(1f)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.Image,
+                        contentDescription = "Galería"
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("Galería")
+                }
             }
             
             Spacer(modifier = Modifier.height(24.dp))
