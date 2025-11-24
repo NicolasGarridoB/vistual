@@ -45,7 +45,8 @@ fun MainScreen(
     usuarioEmail: String,
     onAddPrenda: () -> Unit,
     onLogout: () -> Unit,
-    onNavigateToSavedOutfits: () -> Unit
+    onNavigateToSavedOutfits: () -> Unit,
+    onNavigateToCarouselOutfit: () -> Unit = {}
 ) {
     val prendasState by mainViewModel.prendasState
     val categoriaSeleccionada by mainViewModel.categoriaSeleccionada
@@ -62,6 +63,7 @@ fun MainScreen(
                 },
                 onSaveOutfit = { /* Lógica para guardar se añadirá aquí */ },
                 onNavigateToSavedOutfits = onNavigateToSavedOutfits,
+                onNavigateToCarouselOutfit = onNavigateToCarouselOutfit,
                 onLogout = onLogout,
                 numSeleccionadas = prendasSeleccionadas.size
             )
@@ -235,6 +237,7 @@ private fun MainTopAppBar(
     onCancelSelection: () -> Unit,
     onSaveOutfit: () -> Unit,
     onNavigateToSavedOutfits: () -> Unit,
+    onNavigateToCarouselOutfit: () -> Unit,
     onLogout: () -> Unit
 ) {
     TopAppBar(
@@ -258,6 +261,9 @@ private fun MainTopAppBar(
                     Icon(Icons.Filled.Save, contentDescription = "Guardar Outfit")
                 }
             } else {
+                IconButton(onClick = onNavigateToCarouselOutfit) {
+                    Icon(Icons.Filled.ViewCarousel, contentDescription = "Crear Outfit")
+                }
                 IconButton(onClick = onNavigateToSavedOutfits) {
                     Icon(Icons.Filled.Checkroom, contentDescription = "Outfits Guardados")
                 }

@@ -72,7 +72,8 @@ fun VistualApp() {
                         authViewModel.logout()
                         navController.navigateToLogin()
                     },
-                    onNavigateToSavedOutfits = { navController.navigate(NavigationRoutes.SAVED_OUTFITS) }
+                    onNavigateToSavedOutfits = { navController.navigate(NavigationRoutes.SAVED_OUTFITS) },
+                    onNavigateToCarouselOutfit = { navController.navigate(NavigationRoutes.CAROUSEL_OUTFIT) }
                 )
             }
             composable(NavigationRoutes.AGREGAR_PRENDA) {
@@ -97,6 +98,14 @@ fun VistualApp() {
                     onBack = { navController.popBackStack() }
                 )
             }
+            composable(NavigationRoutes.CAROUSEL_OUTFIT) {
+                CarouselOutfitScreen(
+                    mainViewModel = mainViewModel,
+                    outfitViewModel = outfitViewModel,
+                    onNavigateBack = { navController.popBackStack() },
+                    onNavigateToAddPrenda = { navController.navigate(NavigationRoutes.AGREGAR_PRENDA) }
+                )
+            }
         }
     }
 }
@@ -107,6 +116,7 @@ object NavigationRoutes {
     const val MAIN = "main"
     const val AGREGAR_PRENDA = "agregar_prenda"
     const val SAVED_OUTFITS = "saved_outfits"
+    const val CAROUSEL_OUTFIT = "carousel_outfit"
 }
 
 fun androidx.navigation.NavController.navigateToLogin() {
