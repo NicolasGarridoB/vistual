@@ -2,7 +2,7 @@
 
 Vistual es una aplicación Android moderna que permite gestionar tu closet virtual, tomar fotos de tu ropa, categorizarla y armar outfits. Desarrollada como proyecto universitario siguiendo las mejores prácticas de desarrollo Android.
 
-## 🎯 Funcionalidades
+## Funcionalidades
 
 - **Sistema de Autenticación**: Login y registro con validación de credenciales
 - **Captura de Fotos**: Usa la cámara del dispositivo o galería para fotografiar prendas
@@ -15,7 +15,7 @@ Vistual es una aplicación Android moderna que permite gestionar tu closet virtu
   - **Interna**: Room Database (SQLite) para almacenamiento local
   - **Externa**: API REST con Retrofit con estrategia de fallback (funciona offline)
 
-## 🏗️ Arquitectura
+## Arquitectura
 
 El proyecto sigue el patrón **MVVM (Model-View-ViewModel)** con separación clara de capas:
 
@@ -92,7 +92,7 @@ Ubicación: `com.example.vistual.repository`
 - **Carrusel infinito** para visualización de prendas con scroll continuo
 - Ubicación: `com.example.vistual.ui`
 
-## 🛠️ Tecnologías Utilizadas
+## Tecnologías Utilizadas
 
 ### Core
 - **Lenguaje**: Kotlin 1.9+
@@ -118,7 +118,7 @@ Ubicación: `com.example.vistual.repository`
 - Coroutines Test
 - AndroidX Test (Espresso, JUnit)
 
-## 📱 Estructura del Proyecto
+## Estructura del Proyecto
 
 ```
 app/src/main/java/com/example/vistual/
@@ -166,7 +166,7 @@ app/src/main/java/com/example/vistual/
 └── VistualApplication.kt         # Application class (DI manual)
 ```
 
-## 🚀 Instalación y Uso
+## Instalación y Uso
 
 ### Requisitos Previos
 - Android Studio Hedgehog (2023.1.1) o superior
@@ -210,7 +210,7 @@ cd vistual
    - Guarda el outfit con un nombre
 5. **Ver Outfits**: Accede a "Outfits Guardados" para ver tus combinaciones
 
-## 🧪 Ejecutar Tests
+##  Ejecutar Tests
 
 ### Tests Unitarios
 
@@ -271,40 +271,15 @@ Response: { "success": boolean }
 
 Si no tienes servidor disponible, la app funciona completamente offline usando solo Room Database.
 
-## 📋 Requisitos Cumplidos
 
-### ✅ Requisitos Obligatorios
-
-- [x] **Persistencia Interna**: Room Database con entidades Usuario, Prenda y Outfit
-- [x] **Persistencia Externa**: Retrofit para consumir API REST
-- [x] **Arquitectura MVVM**: Separación clara de capas (UI → ViewModel → Repository → Data)
-- [x] **Jetpack Compose**: UI moderna y declarativa
-- [x] **Material Design**: Tema consistente con Material 3
-- [x] **Navegación**: Navigation Compose entre múltiples pantallas
-
-### ✅ Aspectos Valorados
-
-- [x] **Pruebas Unitarias**: Tests para ViewModels y Repositories
-- [x] **Código Limpio**: Estructura organizada, sin código duplicado
-- [x] **Git con Commits**: Historial claro y descriptivo
-- [x] **README Completo**: Documentación detallada de arquitectura
-
-### ✅ No Hay Puntos Negativos
-
-- [x] Arquitectura MVVM correctamente implementada
-- [x] Sin archivos basura (eliminados Activities y DBHelper obsoletos)
-- [x] Separación de capas respetada (sin lógica en UI)
-- [x] Sin variables de estado en UI (todo en ViewModels)
-- [x] Todas las funcionalidades conectadas y funcionales
-
-## 🔐 Funcionalidades de Seguridad
+## Funcionalidades de Seguridad
 
 - Passwords no se almacenan en SharedPreferences (solo IDs y emails)
 - Tokens JWT guardados de forma segura
 - Validación de inputs en ViewModels
 - Manejo de errores en toda la app
 
-## 📝 Permisos Requeridos
+## Permisos Requeridos
 
 ```xml
 <uses-permission android:name="android.permission.CAMERA" />
@@ -312,49 +287,7 @@ Si no tienes servidor disponible, la app funciona completamente offline usando s
 <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 ```
 
-## 🤝 Contribuciones
 
-Este proyecto es académico. Si encuentras bugs o tienes sugerencias:
-1. Abre un Issue en GitHub
-2. Describe el problema claramente
-3. Si es posible, adjunta screenshots
-
-## 👨‍💻 Autor
-
-**Nicolás Garrido**  
-Proyecto desarrollado para cumplir requisitos universitarios de:
-- Arquitectura MVVM
-- Persistencia de datos (interna y externa)
-- Testing unitario
-- Mejores prácticas de Android
-
-## 📄 Licencia
-
-Este proyecto es para fines educativos y académicos.
-
----
-
-## 🚧 Notas de Desarrollo
-
-### Sincronización de Datos
-
-La estrategia de sincronización implementada es:
-1. **Write-Through**: Las escrituras van primero a local, luego intentan sincronizar con API
-2. **Read-From-Local**: Las lecturas siempre son desde Room (fuente de verdad)
-3. **Manual Sync**: Se puede forzar sincronización con `syncFromApi()`
-
-### Mejoras Futuras
-
-- [ ] Implementar WorkManager para sincronización en background
-- [ ] Agregar DataStore para preferencias
-- [ ] Implementar paginación en listas grandes
-- [ ] Agregar modo oscuro completo
-- [ ] Optimizar carga de imágenes con caché
-- [ ] Implementar búsqueda y filtros avanzados
-- [ ] Agregar compartir outfits con otros usuarios
-- [ ] Implementar servidor backend real para Retrofit
-- [ ] Agregar categoría de accesorios opcional
-- [ ] Estadísticas de uso de prendas y outfits
 
 ---
 
