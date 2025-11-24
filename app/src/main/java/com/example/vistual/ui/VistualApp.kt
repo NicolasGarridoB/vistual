@@ -78,14 +78,17 @@ fun VistualApp() {
             }
             composable(NavigationRoutes.AGREGAR_PRENDA) {
                 val userId = authViewModel.currentUser?.id ?: -1
-                LaunchedEffect(userId) {
+                LaunchedEffect(Unit) {
                     if (userId != -1) {
                         agregarPrendaViewModel.inicializar(userId)
                     }
                 }
                 AgregarPrendaScreen(
                     agregarPrendaViewModel = agregarPrendaViewModel,
-                    onBack = { navController.popBackStack() },
+                    onBack = { 
+                        agregarPrendaViewModel.reiniciarEstado()
+                        navController.popBackStack() 
+                    },
                     onPrendaAgregada = {
                         mainViewModel.cargarPrendas()
                         navController.popBackStack()

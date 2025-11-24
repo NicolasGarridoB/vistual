@@ -169,11 +169,22 @@ private fun SeccionCarrusel(
                 modifier = Modifier.padding(horizontal = 16.dp)
             )
         } else {
+            // Crear lista "infinita" repitiendo las prendas muchas veces
+            val prendasInfinitas = remember(prendas) {
+                if (prendas.size < 10) {
+                    // Si hay pocas prendas, repetirlas para crear efecto infinito
+                    List(100) { index -> prendas[index % prendas.size] }
+                } else {
+                    prendas
+                }
+            }
+            
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                items(prendas) { prenda ->
+                items(prendasInfinitas.size) { index ->
+                    val prenda = prendasInfinitas[index]
                     PrendaCarouselCard(
                         prenda = prenda,
                         isSelected = prendaSeleccionada?.id == prenda.id,

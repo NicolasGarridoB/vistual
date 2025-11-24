@@ -110,6 +110,7 @@ fun AgregarPrendaScreen(
     // Efecto para manejar el éxito al agregar prenda
     LaunchedEffect(agregarPrendaState.isSuccess) {
         if (agregarPrendaState.isSuccess) {
+            agregarPrendaViewModel.reiniciarEstado()
             onPrendaAgregada()
         }
     }
