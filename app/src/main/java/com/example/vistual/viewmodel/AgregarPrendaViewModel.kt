@@ -19,7 +19,7 @@ class AgregarPrendaViewModel(private val prendaRepository: PrendaRepository) : V
     private val _nombrePrenda = mutableStateOf("")
     val nombrePrenda: State<String> = _nombrePrenda
 
-    private val _categoriaSeleccionada = mutableStateOf(CategoriaPrenda.OTROS)
+    private val _categoriaSeleccionada = mutableStateOf(CategoriaPrenda.PARTE_SUPERIOR)
     val categoriaSeleccionada: State<CategoriaPrenda> = _categoriaSeleccionada
 
     private val _colorSeleccionado = mutableStateOf(ColorPrenda.BLANCO)
@@ -76,7 +76,7 @@ class AgregarPrendaViewModel(private val prendaRepository: PrendaRepository) : V
     
     fun reiniciarEstado() {
         _nombrePrenda.value = ""
-        _categoriaSeleccionada.value = CategoriaPrenda.OTROS
+        _categoriaSeleccionada.value = CategoriaPrenda.PARTE_SUPERIOR
         _colorSeleccionado.value = ColorPrenda.BLANCO
         _imagenPath.value = ""
         _agregarPrendaState.value = AgregarPrendaState()

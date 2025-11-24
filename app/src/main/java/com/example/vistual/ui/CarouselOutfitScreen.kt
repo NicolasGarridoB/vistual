@@ -52,10 +52,16 @@ fun CarouselOutfitScreen(
         mapOf(
             SeccionOutfit.PARTE_SUPERIOR to null,
             SeccionOutfit.PARTE_INFERIOR to null,
-            SeccionOutfit.ZAPATOS to null,
-            SeccionOutfit.ACCESORIOS to null
+            SeccionOutfit.ZAPATOS to null
         )
     ) }
+    
+    // Estado para el diálogo de guardar outfit
+    var mostrarDialogoGuardar by remember { mutableStateOf(false) }
+    var nombreOutfit by remember { mutableStateOf("") }
+    
+    // Verificar si todas las categorías están seleccionadas
+    val todasSeleccionadas = prendasSeleccionadas.values.all { it != null }
     
     // Agrupar prendas por sección
     val prendasPorSeccion = remember(prendas) {
@@ -117,26 +123,70 @@ fun CarouselOutfitScreen(
             // Botón para guardar outfit
             Button(
                 onClick = {
-                    // Aquí puedes guardar el outfit con las prendas seleccionadas
-                    val prendasIds = prendasSeleccionadas.values
-                        .filterNotNull()
-                        .map { it.id }
-                    
-                    if (prendasIds.isNotEmpty()) {
-                        // TODO: Implementar guardado de outfit
-                        // outfitViewModel.guardarOutfit(prendasIds)
-                    }
+                    mostrarDialogoGuardar = true
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(16.dp),
-                enabled = prendasSeleccionadas.values.any { it != null }
+                enabled = todasSeleccionadas
             ) {
                 Icon(Icons.Default.Check, contentDescription = null)
                 Spacer(modifier = Modifier.width(8.dp))
-                Text("Guardar Outfit")
+                Text(if (todasSeleccionadas) "Guardar Outfit" else "Selecciona todas las categorías")
             }
         }
+    }
+    
+    // Diálogo para guardar outfit
+    if (mostrarDialogoGuardar) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogoGuardar = false },
+            title = { Text("Guardar Outfit") },
+            text = {
+                Column {
+                    Text("Dale un nombre a tu outfit")
+                    Spacer(modifier = Modifier.height(8.dp))
+                    OutlinedTextField(
+                        value = nombreOutfit,
+                        onValueChange = { nombreOutfit = it },
+                        label = { Text("Nombre del outfit") },
+                        singleLine = true
+                    )
+                }
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        if (nombreOutfit.isNotBlank()) {
+                            val prendasIds = prendasSeleccionadas.values
+                                .filterNotNull()
+                                .map { it.id }
+                            outfitViewModel.saveOutfit(nombreOutfit, prendasIds)
+                            mostrarDialogoGuardar = false
+                            nombreOutfit = ""
+                            // Limpiar selección
+                            prendasSeleccionadas = mapOf(
+                                SeccionOutfit.PARTE_SUPERIOR to null,
+                                SeccionOutfit.PARTE_INFERIOR to null,
+                                SeccionOutfit.ZAPATOS to null
+                            )
+                            onNavigateBack()
+                        }
+                    },
+                    enabled = nombreOutfit.isNotBlank()
+                ) {
+                    Text("Guardar")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { 
+                    mostrarDialogoGuardar = false
+                    nombreOutfit = ""
+                }) {
+                    Text("Cancelar")
+                }
+            }
+        )
     }
 }
 

@@ -43,14 +43,9 @@ data class AgregarPrendaState(
  * Enum para las categorías de prendas
  */
 enum class CategoriaPrenda(val displayName: String, val seccion: SeccionOutfit) {
-    CAMISA("Camisa", SeccionOutfit.PARTE_SUPERIOR),
-    PANTALON("Pantalón", SeccionOutfit.PARTE_INFERIOR),
-    VESTIDO("Vestido", SeccionOutfit.PARTE_SUPERIOR),
-    ZAPATOS("Zapatos", SeccionOutfit.ZAPATOS),
-    ACCESORIO("Accesorio", SeccionOutfit.ACCESORIOS),
-    CHAQUETA("Chaqueta", SeccionOutfit.PARTE_SUPERIOR),
-    FALDA("Falda", SeccionOutfit.PARTE_INFERIOR),
-    OTROS("Otros", SeccionOutfit.ACCESORIOS)
+    PARTE_SUPERIOR("Parte Superior", SeccionOutfit.PARTE_SUPERIOR),
+    PARTE_INFERIOR("Parte Inferior", SeccionOutfit.PARTE_INFERIOR),
+    ZAPATOS("Zapatos", SeccionOutfit.ZAPATOS)
 }
 
 /**
@@ -59,8 +54,7 @@ enum class CategoriaPrenda(val displayName: String, val seccion: SeccionOutfit) 
 enum class SeccionOutfit(val displayName: String) {
     PARTE_SUPERIOR("Parte Superior"),
     PARTE_INFERIOR("Parte Inferior"),
-    ZAPATOS("Zapatos"),
-    ACCESORIOS("Accesorios")
+    ZAPATOS("Zapatos")
 }
 
 /**
