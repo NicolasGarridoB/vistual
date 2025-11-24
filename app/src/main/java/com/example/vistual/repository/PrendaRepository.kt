@@ -44,15 +44,19 @@ class PrendaRepository(
                     val prendasDto = response.body()?.prendas ?: emptyList()
                     
                     // Convertir DTOs a entidades Room y guardar en local
-                    val prendas = prendasDto.map { dto ->
-                        Prenda(
-                            id = dto.id,
-                            nombre = dto.nombre,
-                            categoria = dto.categoria,
-                            color = dto.color,
-                            imagePath = dto.imagenUrl ?: "",
-                            usuarioId = dto.usuarioId
-                        )
+                    val prendas = prendasDto.mapNotNull { dto ->
+                        try {
+                            Prenda(
+                                id = dto.id,
+                                nombre = dto.nombre,
+                                categoria = com.example.vistual.model.CategoriaPrenda.valueOf(dto.categoria.uppercase()),
+                                color = com.example.vistual.model.ColorPrenda.valueOf(dto.color.uppercase()),
+                                imagenPath = dto.imagenUrl ?: "",
+                                usuarioId = dto.usuarioId
+                            )
+                        } catch (e: Exception) {
+                            null // Ignorar prendas con categoría/color inválido
+                        }
                     }
                     
                     // Actualizar base de datos local
@@ -93,9 +97,9 @@ class PrendaRepository(
                 try {
                     val dto = PrendaDto(
                         nombre = prenda.nombre,
-                        categoria = prenda.categoria,
-                        color = prenda.color,
-                        imagenUrl = prenda.imagePath,
+                        categoria = prenda.categoria.name,
+                        color = prenda.color.name,
+                        imagenUrl = prenda.imagenPath,
                         usuarioId = prenda.usuarioId
                     )
                     
@@ -105,7 +109,7 @@ class PrendaRepository(
                         // Actualizar ID si el API retorna uno diferente
                         val createdDto = response.body()!!
                         if (createdDto.id != prenda.id) {
-                            prendaDao.deleteById(prenda.id)
+                            prendaDao.deletePrendaById(prenda.id)
                             prendaDao.insertPrenda(prenda.copy(id = createdDto.id))
                         }
                     }

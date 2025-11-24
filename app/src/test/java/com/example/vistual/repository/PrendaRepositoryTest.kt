@@ -4,6 +4,8 @@ import com.example.vistual.api.ApiService
 import com.example.vistual.api.models.PrendaDto
 import com.example.vistual.api.models.PrendasResponse
 import com.example.vistual.db.PrendaDao
+import com.example.vistual.model.CategoriaPrenda
+import com.example.vistual.model.ColorPrenda
 import com.example.vistual.model.Prenda
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -44,8 +46,8 @@ class PrendaRepositoryTest {
         // Arrange
         val usuarioId = 1
         val prendas = listOf(
-            Prenda(1, "Camisa", "Camisas", "Azul", "/path/img1.jpg", usuarioId),
-            Prenda(2, "Pantalón", "Pantalones", "Negro", "/path/img2.jpg", usuarioId)
+            Prenda(1, "Camisa", CategoriaPrenda.CAMISA, ColorPrenda.AZUL, "/path/img1.jpg", usuarioId),
+            Prenda(2, "Pantalón", CategoriaPrenda.PANTALON, ColorPrenda.NEGRO, "/path/img2.jpg", usuarioId)
         )
         `when`(prendaDao.getAllPrendas(usuarioId)).thenReturn(flowOf(prendas))
 
@@ -64,8 +66,8 @@ class PrendaRepositoryTest {
         // Arrange
         val usuarioId = 1
         val prendasDto = listOf(
-            PrendaDto(1, "Camisa API", "Camisas", "Rojo", "/api/img1.jpg", usuarioId),
-            PrendaDto(2, "Zapatos API", "Zapatos", "Café", "/api/img2.jpg", usuarioId)
+            PrendaDto(1, "Camisa API", "CAMISA", "ROJO", "/api/img1.jpg", usuarioId),
+            PrendaDto(2, "Zapatos API", "ZAPATOS", "MARRON", "/api/img2.jpg", usuarioId)
         )
         val response = PrendasResponse(success = true, prendas = prendasDto)
         
@@ -97,8 +99,8 @@ class PrendaRepositoryTest {
     @Test
     fun `insert guarda en local y sincroniza con API`() = runTest {
         // Arrange
-        val prenda = Prenda(0, "Nueva Camisa", "Camisas", "Verde", "/path/img.jpg", 1)
-        val prendaDto = PrendaDto(10, "Nueva Camisa", "Camisas", "Verde", "/path/img.jpg", 1)
+        val prenda = Prenda(0, "Nueva Camisa", CategoriaPrenda.CAMISA, ColorPrenda.VERDE, "/path/img.jpg", 1)
+        val prendaDto = PrendaDto(10, "Nueva Camisa", "CAMISA", "VERDE", "/path/img.jpg", 1)
         
         `when`(apiService.createPrenda(any(PrendaDto::class.java), eq("Bearer $mockToken")))
             .thenReturn(Response.success(prendaDto))
@@ -114,7 +116,7 @@ class PrendaRepositoryTest {
     @Test
     fun `insert sin conexion API guarda solo en local`() = runTest {
         // Arrange
-        val prenda = Prenda(0, "Nueva Camisa", "Camisas", "Verde", "/path/img.jpg", 1)
+        val prenda = Prenda(0, "Nueva Camisa", CategoriaPrenda.CAMISA, ColorPrenda.VERDE, "/path/img.jpg", 1)
         
         `when`(apiService.createPrenda(any(PrendaDto::class.java), anyString()))
             .thenThrow(RuntimeException("Network error"))
@@ -164,7 +166,7 @@ class PrendaRepositoryTest {
     fun `getPrendaById retorna prenda del DAO`() = runTest {
         // Arrange
         val prendaId = 3
-        val prenda = Prenda(prendaId, "Camisa Test", "Camisas", "Blanco", "/path/test.jpg", 1)
+        val prenda = Prenda(prendaId, "Camisa Test", CategoriaPrenda.CAMISA, ColorPrenda.BLANCO, "/path/test.jpg", 1)
         `when`(prendaDao.getPrendaById(prendaId)).thenReturn(prenda)
 
         // Act
