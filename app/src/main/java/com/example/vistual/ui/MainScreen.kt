@@ -33,12 +33,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.vistual.model.Prenda
 import com.example.vistual.viewmodel.MainViewModel
+import com.example.vistual.viewmodel.OutfitViewModel
 import java.io.File
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(
     mainViewModel: MainViewModel,
+    outfitViewModel: OutfitViewModel,
     usuarioEmail: String,
     onAddPrenda: () -> Unit,
     onLogout: () -> Unit,
@@ -47,6 +49,19 @@ fun MainScreen(
     val prendasState by mainViewModel.prendasState
     var modoSeleccion by remember { mutableStateOf(false) }
     var prendasSeleccionadas by remember { mutableStateOf<Set<Int>>(emptySet()) }
+    var mostrarDialogoGuardar by remember { mutableStateOf(false) }
+
+    if (mostrarDialogoGuardar) {
+        SaveOutfitDialog(
+            onDismiss = { mostrarDialogoGuardar = false },
+            onSave = {
+                outfitViewModel.saveOutfit(it, prendasSeleccionadas.toList())
+                modoSeleccion = false
+                prendasSeleccionadas = emptySet()
+                mostrarDialogoGuardar = false
+            }
+        )
+    }
 
     Scaffold(
         topBar = {
@@ -56,7 +71,7 @@ fun MainScreen(
                     modoSeleccion = false
                     prendasSeleccionadas = emptySet()
                 },
-                onSaveOutfit = { /* Lógica para guardar se añadirá aquí */ },
+                onSaveOutfit = { mostrarDialogoGuardar = true },
                 onNavigateToSavedOutfits = onNavigateToSavedOutfits,
                 onLogout = onLogout,
                 numSeleccionadas = prendasSeleccionadas.size
@@ -112,7 +127,6 @@ fun MainScreen(
                                         } else {
                                             prendasSeleccionadas + prenda.id
                                         }
-                                        // Si ya no quedan prendas seleccionadas, salimos del modo selección
                                         if (prendasSeleccionadas.isEmpty()) {
                                             modoSeleccion = false
                                         }
@@ -133,7 +147,7 @@ fun MainScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // <<< FIX: Add this annotation here
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainTopAppBar(
     modoSeleccion: Boolean,
@@ -242,3 +256,36 @@ fun PrendaCard(
     }
 }
 
+@Composable
+fun SaveOutfitDialog(
+    onDismiss: () -> Unit,
+    onSave: (String) -> Unit
+) {
+    var text by remember { mutableStateOf("") }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Guardar Outfit") },
+        text = {
+            OutlinedTextField(
+                value = text,
+                onValueChange = { text = it },
+                label = { Text("Nombre del outfit") },
+                singleLine = true
+            )
+        },
+        confirmButton = {
+            Button(
+                onClick = { onSave(text) },
+                enabled = text.isNotBlank()
+            ) {
+                Text("Guardar")
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text("Cancelar")
+            }
+        }
+    )
+}

@@ -1,6 +1,5 @@
 package com.example.vistual.ui
 
-import android.app.Activity
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalContext
@@ -16,23 +15,18 @@ import com.example.vistual.viewmodel.AgregarPrendaViewModel
 import com.example.vistual.viewmodel.OutfitViewModel
 import com.example.vistual.viewmodel.ViewModelFactory
 
-/**
- * Configuración de navegación principal de la aplicación
- */
 @Composable
 fun VistualApp() {
     val context = LocalContext.current
     val application = context.applicationContext as VistualApplication
     val navController = rememberNavController()
 
-    // ViewModelFactory para crear todos los ViewModels
     val factory = ViewModelFactory(
         prendaRepository = application.prendaRepository,
         outfitRepository = application.outfitRepository,
         userRepository = application.userRepository
     )
 
-    // Instancias de ViewModel obtenidas de la factory
     val authViewModel: AuthViewModel = viewModel(factory = factory)
     val mainViewModel: MainViewModel = viewModel(factory = factory)
     val agregarPrendaViewModel: AgregarPrendaViewModel = viewModel(factory = factory)
@@ -58,14 +52,15 @@ fun VistualApp() {
                 )
             }
             composable(NavigationRoutes.MAIN) {
-                val userId = authViewModel.currentUser?.id ?: -1
+                val userId = authViewModel.currentUser?.id
                 LaunchedEffect(userId) {
-                    if (userId != -1) {
+                    if (userId != null && userId != 0) {
                         mainViewModel.inicializar(userId)
                     }
                 }
                 MainScreen(
                     mainViewModel = mainViewModel,
+                    outfitViewModel = outfitViewModel, // Pasar el viewModel para guardar outfits
                     usuarioEmail = authViewModel.currentUserEmail(),
                     onAddPrenda = { navController.navigate(NavigationRoutes.AGREGAR_PRENDA) },
                     onLogout = {
@@ -76,20 +71,17 @@ fun VistualApp() {
                 )
             }
             composable(NavigationRoutes.AGREGAR_PRENDA) {
-                val userId = authViewModel.currentUser?.id ?: -1
+                val userId = authViewModel.currentUser?.id
                 LaunchedEffect(userId) {
-                    if (userId != -1) {
+                    if (userId != null && userId != 0) {
                         agregarPrendaViewModel.inicializar(userId)
                     }
                 }
                 AgregarPrendaScreen(
                     agregarPrendaViewModel = agregarPrendaViewModel,
-                    onBack = { 
-                        agregarPrendaViewModel.reiniciarEstado()
-                        navController.popBackStack() 
-                    },
+                    onBack = { navController.popBackStack() },
                     onPrendaAgregada = {
-                        agregarPrendaViewModel.reiniciarEstado()
+                        mainViewModel.cargarPrendas() // Recargar prendas en la pantalla principal
                         navController.popBackStack()
                     }
                 )
@@ -119,7 +111,7 @@ fun androidx.navigation.NavController.navigateToLogin() {
 }
 
 fun androidx.navigation.NavController.navigateToMain() {
-    navigate(NavigationRoutes.MAIN) {
+    navigate(NavigationRoutes.LOGIN) {
         popUpTo(NavigationRoutes.LOGIN) { inclusive = true }
     }
 }
