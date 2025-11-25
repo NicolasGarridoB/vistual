@@ -29,10 +29,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.vistual.R
 import com.example.vistual.model.CategoriaPrenda
 import com.example.vistual.model.Prenda
 import com.example.vistual.viewmodel.MainViewModel
@@ -245,7 +247,18 @@ private fun MainTopAppBar(
             if (modoSeleccion) {
                 Text("$numSeleccionadas seleccionadas")
             } else {
-                Text("Closet Virtual")
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.Start
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.vistu),
+                        contentDescription = "Logo Vistual",
+                        modifier = Modifier.size(32.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("Closet Virtual")
+                }
             }
         },
         navigationIcon = {

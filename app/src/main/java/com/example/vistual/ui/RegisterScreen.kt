@@ -1,5 +1,6 @@
 package com.example.vistual.ui
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -12,12 +13,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.example.vistual.R
 import androidx.compose.ui.unit.sp
 import com.example.vistual.viewmodel.AuthViewModel
 
@@ -53,6 +56,14 @@ fun RegisterScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.vistu),
+            contentDescription = "Logo Vistual",
+            modifier = Modifier
+                .size(120.dp)
+                .padding(bottom = 16.dp)
+        )
+
         Text(
             text = "Crear Cuenta",
             style = MaterialTheme.typography.headlineLarge,
