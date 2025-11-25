@@ -38,13 +38,13 @@ class PrendaRepository(
         return@withContext try {
             val token = getAuthToken()
             if (token != null) {
-                val response = apiService.getPrendasByUsuario(usuarioId, "Bearer $token")
+                val response = apiService.getAllPrendas("Bearer $token")
                 
-                if (response.isSuccessful && response.body()?.success == true) {
-                    val prendasDto = response.body()?.prendas ?: emptyList()
+                if (response.isSuccessful && response.body() != null) {
+                    val prendasDto = response.body()!!
                     
                     // Convertir DTOs a entidades Room y guardar en local
-                    val prendas = prendasDto.mapNotNull { dto ->
+                    val prendas = prendasDto.mapNotNull { dto: PrendaDto ->
                         try {
                             Prenda(
                                 id = dto.id,
@@ -60,7 +60,7 @@ class PrendaRepository(
                     }
                     
                     // Actualizar base de datos local
-                    prendas.forEach { prenda ->
+                    prendas.forEach { prenda: Prenda ->
                         val existing = prendaDao.getPrendaById(prenda.id)
                         if (existing == null) {
                             prendaDao.insertPrenda(prenda)

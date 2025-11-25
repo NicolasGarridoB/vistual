@@ -69,10 +69,9 @@ class PrendaRepositoryTest {
             PrendaDto(1, "Camisa API", "CAMISA", "ROJO", "/api/img1.jpg", usuarioId),
             PrendaDto(2, "Zapatos API", "ZAPATOS", "MARRON", "/api/img2.jpg", usuarioId)
         )
-        val response = PrendasResponse(success = true, prendas = prendasDto)
         
-        `when`(apiService.getPrendasByUsuario(usuarioId, "Bearer $mockToken"))
-            .thenReturn(Response.success(response))
+        `when`(apiService.getAllPrendas("Bearer $mockToken"))
+            .thenReturn(Response.success(prendasDto))
         `when`(prendaDao.getPrendaById(anyInt())).thenReturn(null)
 
         // Act
