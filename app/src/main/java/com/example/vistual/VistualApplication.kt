@@ -19,8 +19,9 @@ class VistualApplication : Application() {
         getSharedPreferences("VistualSession", Context.MODE_PRIVATE)
     }
     
-    // ApiService de Retrofit para consumir API REST
-    private val apiService by lazy { RetrofitClient.apiService }
+    // Servicios de Retrofit para consumir API REST
+    private val authService by lazy { RetrofitClient.authService }  // Para autenticación
+    private val apiService by lazy { RetrofitClient.apiService }    // Para prendas y outfits
 
     // Repositorios que usan Room (interna) + Retrofit (externa)
     val prendaRepository by lazy { 
@@ -38,7 +39,7 @@ class VistualApplication : Application() {
     val userRepository by lazy { 
         UserRepository(
             database.usuarioDao(),
-            apiService,
+            authService,  // Usa authService en lugar de apiService
             sharedPreferences
         ) 
     }

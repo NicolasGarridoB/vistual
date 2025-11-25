@@ -2,6 +2,36 @@
 
 Vistual es una aplicación Android moderna que permite gestionar tu closet virtual, tomar fotos de tu ropa, categorizarla y armar outfits. Desarrollada como proyecto universitario siguiendo las mejores prácticas de desarrollo Android.
 
+## 🚀 Conexión con Backend XANO
+
+Este proyecto está **configurado para conectarse con XANO**, una plataforma de backend sin código que proporciona:
+- ✅ Base de datos PostgreSQL
+- ✅ API REST automática
+- ✅ Autenticación JWT
+- ✅ Almacenamiento de imágenes
+
+### ⚡ Inicio Rápido (5 minutos)
+
+1. **Crea tu backend en XANO**:
+   - Ve a [XANO.com](https://www.xano.com) y crea una cuenta
+   - Crea un nuevo proyecto llamado "Vistual"
+   - Usa el contenido de `XANO_PROMPT.md` para generar el backend automáticamente
+
+2. **Copia tu URL de XANO**:
+   - En XANO, ve a la sección "API" y copia la "Base URL"
+   - Se verá así: `https://x8ki-letl-twmt.n7.xano.io/api:xxxxx`
+
+3. **Configura la app**:
+   - Abre `app/src/main/java/com/example/vistual/api/ApiConfig.kt`
+   - Reemplaza `BASE_URL` con tu URL de XANO (asegúrate que termine con `/`)
+
+4. **¡Listo!** Ejecuta la app y todo se sincronizará con tu backend
+
+📖 **Guías detalladas**:
+- `INICIO_RAPIDO.md` - Paso a paso con capturas
+- `XANO_PROMPT.md` - Prompt completo para XANO
+- `XANO_SETUP.md` - Configuración avanzada y troubleshooting
+
 ## Funcionalidades
 
 - **Sistema de Autenticación**: Login y registro con validación de credenciales
@@ -234,11 +264,30 @@ Los tests cubren:
 # El reporte HTML estará en: app/build/reports/tests/testDebugUnitTest/index.html
 ```
 
-## 🔧 Configuración de API REST
+## 🔧 Configuración de Backend
 
-### Endpoints Esperados
+### Opción 1: XANO (Recomendado) 🌟
 
-El proyecto espera que el servidor implemente los siguientes endpoints:
+**XANO es la forma más rápida de tener un backend funcionando (5 minutos)**:
+
+1. Sigue la guía en `INICIO_RAPIDO.md`
+2. Usa el prompt en `XANO_PROMPT.md` para generar el backend automáticamente
+3. Configura la URL en `ApiConfig.kt`
+4. ¡Listo! Tu app está conectada a un backend real
+
+**Ventajas de XANO**:
+- ✅ Sin código backend necesario
+- ✅ Base de datos PostgreSQL automática
+- ✅ API REST generada automáticamente
+- ✅ Autenticación JWT incluida
+- ✅ Almacenamiento de archivos/imágenes
+- ✅ Panel de administración visual
+- ✅ Logs en tiempo real
+- ✅ Plan gratuito disponible
+
+### Opción 2: Backend Propio
+
+Si prefieres implementar tu propio backend, estos son los endpoints que debe implementar:
 
 #### Autenticación
 ```
@@ -267,7 +316,9 @@ Headers: Authorization: Bearer {token}
 Response: { "success": boolean }
 ```
 
-### Modo Offline
+Ver especificaciones completas en `XANO_PROMPT.md` (sirve también como documentación de API).
+
+### Opción 3: Modo Offline (Sin Backend)
 
 Si no tienes servidor disponible, la app funciona completamente offline usando solo Room Database.
 

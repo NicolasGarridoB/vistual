@@ -4,28 +4,28 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Data Transfer Object para Prenda del API REST
- * Coincide con la tabla 'prenda' de XANO
+ * Data Transfer Object para Outfit del API REST
+ * Coincide con la tabla 'outfit' de XANO
  */
 @JsonClass(generateAdapter = true)
-data class PrendaDto(
+data class OutfitDto(
     @Json(name = "id")
     val id: Int = 0,
     
     @Json(name = "nombre")
     val nombre: String,
     
-    @Json(name = "categoria")
-    val categoria: String,
-    
-    @Json(name = "color")
-    val color: String,
-    
-    @Json(name = "imagen_url")
-    val imagenUrl: String? = null,
-    
     @Json(name = "user_id")
     val usuarioId: Int,
+    
+    @Json(name = "prenda_superior_id")
+    val prendaSuperiorId: Int? = null,
+    
+    @Json(name = "prenda_inferior_id")
+    val prendaInferiorId: Int? = null,
+    
+    @Json(name = "zapatos_id")
+    val zapatosId: Int? = null,
     
     @Json(name = "created_at")
     val createdAt: Long? = null,

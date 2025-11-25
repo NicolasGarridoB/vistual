@@ -4,14 +4,14 @@ import com.squareup.moshi.Json
 import com.squareup.moshi.JsonClass
 
 /**
- * Modelo de solicitud para registro en el API REST
+ * Modelo de solicitud para registro en el API REST de XANO
  */
 @JsonClass(generateAdapter = true)
 data class RegisterRequest(
-    @Json(name = "nombre")
+    @Json(name = "name")
     val nombre: String,
     
-    @Json(name = "correo")
+    @Json(name = "email")
     val correo: String,
     
     @Json(name = "password")

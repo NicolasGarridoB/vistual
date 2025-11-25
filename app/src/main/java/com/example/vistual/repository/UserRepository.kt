@@ -1,7 +1,7 @@
 package com.example.vistual.repository
 
 import android.content.SharedPreferences
-import com.example.vistual.api.ApiService
+import com.example.vistual.api.AuthApiService
 import com.example.vistual.api.models.LoginRequest
 import com.example.vistual.api.models.RegisterRequest
 import com.example.vistual.db.UsuarioDao
@@ -13,12 +13,12 @@ import kotlinx.coroutines.withContext
  * Repository para gestionar datos de usuarios
  * Implementa patrón Repository de MVVM
  * Consume datos de:
- * - API REST (externa) mediante Retrofit
+ * - API REST (externa) mediante Retrofit - AuthApiService
  * - Room Database (interna) para persistencia local
  */
 class UserRepository(
     private val usuarioDao: UsuarioDao,
-    private val apiService: ApiService,
+    private val authService: AuthApiService,
     private val sharedPreferences: SharedPreferences
 ) {
 
@@ -35,7 +35,7 @@ class UserRepository(
                 correo = usuario.correo,
                 password = usuario.password
             )
-            val response = apiService.register(request)
+            val response = authService.register(request)
             
             if (response.isSuccessful && response.body()?.success == true) {
                 // 2. Guardar también en base de datos local
@@ -85,7 +85,7 @@ class UserRepository(
         return@withContext try {
             // 1. Intentar login en API REST
             val request = LoginRequest(correo = correo, password = password)
-            val response = apiService.login(request)
+            val response = authService.login(request)
             
             if (response.isSuccessful && response.body()?.success == true) {
                 val userFromApi = response.body()?.user
