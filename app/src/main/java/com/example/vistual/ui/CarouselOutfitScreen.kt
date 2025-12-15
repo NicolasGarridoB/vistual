@@ -1,6 +1,5 @@
 package com.example.vistual.ui
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -8,7 +7,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
@@ -19,7 +17,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -46,7 +44,7 @@ fun CarouselOutfitScreen(
 ) {
     val prendasState by mainViewModel.prendasState
     val prendas = prendasState.prendas
-    
+
     // Estado para las prendas seleccionadas por sección
     var prendasSeleccionadas by remember { mutableStateOf<Map<SeccionOutfit, Prenda?>>(
         mapOf(
@@ -55,19 +53,19 @@ fun CarouselOutfitScreen(
             SeccionOutfit.ZAPATOS to null
         )
     ) }
-    
+
     // Estado para el diálogo de guardar outfit
     var mostrarDialogoGuardar by remember { mutableStateOf(false) }
     var nombreOutfit by remember { mutableStateOf("") }
-    
+
     // Verificar si todas las categorías están seleccionadas
     val todasSeleccionadas = prendasSeleccionadas.values.all { it != null }
-    
+
     // Agrupar prendas por sección
     val prendasPorSeccion = remember(prendas) {
         prendas.groupBy { it.categoria.seccion }
     }
-    
+
     Scaffold(
         topBar = {
             TopAppBar(
@@ -119,7 +117,7 @@ fun CarouselOutfitScreen(
                     }
                 }
             }
-            
+
             // Botón para guardar outfit
             Button(
                 onClick = {
@@ -136,7 +134,7 @@ fun CarouselOutfitScreen(
             }
         }
     }
-    
+
     // Diálogo para guardar outfit
     if (mostrarDialogoGuardar) {
         AlertDialog(
@@ -210,7 +208,7 @@ private fun SeccionCarrusel(
             fontWeight = FontWeight.Bold,
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
         )
-        
+
         // Carrusel horizontal de prendas
         if (prendas.isEmpty()) {
             Text(
@@ -228,7 +226,7 @@ private fun SeccionCarrusel(
                     prendas
                 }
             }
-            
+
             LazyRow(
                 contentPadding = PaddingValues(horizontal = 16.dp),
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
@@ -237,6 +235,7 @@ private fun SeccionCarrusel(
                     val prenda = prendasInfinitas[index]
                     PrendaCarouselCard(
                         prenda = prenda,
+                        seccion = seccion,
                         isSelected = prendaSeleccionada?.id == prenda.id,
                         onClick = { onPrendaClick(prenda) }
                     )
@@ -252,15 +251,17 @@ private fun SeccionCarrusel(
 @Composable
 private fun PrendaCarouselCard(
     prenda: Prenda,
+    seccion: SeccionOutfit,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
-    val borderColor = if (isSelected) {
-        MaterialTheme.colorScheme.primary
+    // Define el tamaño de la imagen según la sección
+    val imageModifier = if (seccion == SeccionOutfit.PARTE_INFERIOR) {
+        Modifier.width(120.dp).height(160.dp)
     } else {
-        Color.Transparent
+        Modifier.size(120.dp)
     }
-    
+
     Column(
         modifier = Modifier
             .width(120.dp)
@@ -270,14 +271,19 @@ private fun PrendaCarouselCard(
         // Imagen de la prenda
         Box(
             modifier = Modifier
-                .size(120.dp)
+                .then(imageModifier)
+                .shadow(4.dp, RoundedCornerShape(12.dp))
                 .clip(RoundedCornerShape(12.dp))
-                .border(
-                    width = if (isSelected) 3.dp else 1.dp,
-                    color = if (isSelected) borderColor else MaterialTheme.colorScheme.outline,
-                    shape = RoundedCornerShape(12.dp)
-                )
                 .background(MaterialTheme.colorScheme.surfaceVariant)
+                .then(
+                    if (isSelected) {
+                        Modifier.border(
+                            width = 3.dp,
+                            color = MaterialTheme.colorScheme.primary,
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                    } else Modifier
+                )
         ) {
             if (prenda.imagenPath.isNotEmpty()) {
                 Image(
@@ -287,7 +293,7 @@ private fun PrendaCarouselCard(
                     contentScale = ContentScale.Crop
                 )
             }
-            
+
             // Indicador de selección
             if (isSelected) {
                 Surface(
@@ -307,9 +313,9 @@ private fun PrendaCarouselCard(
                 }
             }
         }
-        
+
         Spacer(modifier = Modifier.height(8.dp))
-        
+
         // Nombre de la prenda
         Text(
             text = prenda.nombre,

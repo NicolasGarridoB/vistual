@@ -13,6 +13,7 @@ import com.example.vistual.ui.theme.VistualTheme
 import com.example.vistual.viewmodel.AuthViewModel
 import com.example.vistual.viewmodel.MainViewModel
 import com.example.vistual.viewmodel.AgregarPrendaViewModel
+import com.example.vistual.viewmodel.CommunityViewModel
 import com.example.vistual.viewmodel.OutfitViewModel
 import com.example.vistual.viewmodel.ViewModelFactory
 
@@ -37,6 +38,7 @@ fun VistualApp() {
     val mainViewModel: MainViewModel = viewModel(factory = factory)
     val agregarPrendaViewModel: AgregarPrendaViewModel = viewModel(factory = factory)
     val outfitViewModel: OutfitViewModel = viewModel(factory = factory)
+    val communityViewModel: CommunityViewModel = viewModel(factory = factory)
 
     VistualTheme {
         NavHost(
@@ -73,7 +75,8 @@ fun VistualApp() {
                         navController.navigateToLogin()
                     },
                     onNavigateToSavedOutfits = { navController.navigate(NavigationRoutes.SAVED_OUTFITS) },
-                    onNavigateToCarouselOutfit = { navController.navigate(NavigationRoutes.CAROUSEL_OUTFIT) }
+                    onNavigateToCarouselOutfit = { navController.navigate(NavigationRoutes.CAROUSEL_OUTFIT) },
+                    onNavigateToCommunity = { navController.navigate(NavigationRoutes.COMMUNITY) } // Navegar a la nueva pantalla
                 )
             }
             composable(NavigationRoutes.AGREGAR_PRENDA) {
@@ -96,9 +99,12 @@ fun VistualApp() {
                 )
             }
             composable(NavigationRoutes.SAVED_OUTFITS) {
+                // Pasar el CommunityViewModel para poder compartir
                 SavedOutfitsScreen(
                     outfitViewModel = outfitViewModel,
                     mainViewModel = mainViewModel,
+                    communityViewModel = communityViewModel,
+                    authViewModel = authViewModel,
                     onBack = { navController.popBackStack() }
                 )
             }
@@ -108,6 +114,13 @@ fun VistualApp() {
                     outfitViewModel = outfitViewModel,
                     onNavigateBack = { navController.popBackStack() },
                     onNavigateToAddPrenda = { navController.navigate(NavigationRoutes.AGREGAR_PRENDA) }
+                )
+            }
+            // Nuevo composable para la pantalla de Comunidad
+            composable(NavigationRoutes.COMMUNITY) {
+                CommunityScreen(
+                    communityViewModel = communityViewModel,
+                    onBack = { navController.popBackStack() }
                 )
             }
         }
@@ -121,6 +134,7 @@ object NavigationRoutes {
     const val AGREGAR_PRENDA = "agregar_prenda"
     const val SAVED_OUTFITS = "saved_outfits"
     const val CAROUSEL_OUTFIT = "carousel_outfit"
+    const val COMMUNITY = "community" // Nueva ruta
 }
 
 fun androidx.navigation.NavController.navigateToLogin() {

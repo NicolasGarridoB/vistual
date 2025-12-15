@@ -1,5 +1,6 @@
 package com.example.vistual.ui
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -16,12 +17,16 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberAsyncImagePainter
 import com.example.vistual.model.Outfit
+import com.example.vistual.viewmodel.AuthViewModel
+import com.example.vistual.viewmodel.CommunityViewModel
 import com.example.vistual.viewmodel.MainViewModel
 import com.example.vistual.viewmodel.OutfitViewModel
 import java.io.File
@@ -31,11 +36,15 @@ import java.io.File
 fun SavedOutfitsScreen(
     outfitViewModel: OutfitViewModel,
     mainViewModel: MainViewModel,
+    communityViewModel: CommunityViewModel, // Recibir el ViewModel de la comunidad
+    authViewModel: AuthViewModel, // Recibir el ViewModel de autenticación
     onBack: () -> Unit
 ) {
     val outfits by outfitViewModel.allOutfits.collectAsState()
     val prendasState by mainViewModel.prendasState
     val todasLasPrendas = prendasState.prendas
+    val currentUserEmail = authViewModel.currentUserEmail()
+    val context = LocalContext.current // Contexto para el Toast
 
     Scaffold(
         topBar = {
@@ -83,13 +92,19 @@ fun SavedOutfitsScreen(
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
                     items(outfits) { outfit ->
                         OutfitCard(
                             outfit = outfit,
                             prendas = todasLasPrendas.filter { it.id in outfit.prendaIds },
-                            onDelete = { outfitViewModel.deleteOutfit(outfit.id) }
+                            onDelete = { outfitViewModel.deleteOutfit(outfit.id) },
+                            onShare = { prendas ->
+                                val userName = currentUserEmail.substringBefore('@')
+                                communityViewModel.shareOutfit(outfit.nombre, prendas, userName)
+                                // Mostrar mensaje de confirmación
+                                Toast.makeText(context, "¡Outfit compartido en la comunidad!", Toast.LENGTH_SHORT).show()
+                            }
                         )
                     }
                 }
@@ -102,7 +117,8 @@ fun SavedOutfitsScreen(
 fun OutfitCard(
     outfit: Outfit,
     prendas: List<com.example.vistual.model.Prenda>,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onShare: (List<com.example.vistual.model.Prenda>) -> Unit
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -113,7 +129,7 @@ fun OutfitCard(
                 .fillMaxWidth()
                 .padding(16.dp)
         ) {
-            // Encabezado con nombre y botón eliminar
+            // Encabezado con nombre y botón de eliminar
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
@@ -122,7 +138,8 @@ fun OutfitCard(
                 Text(
                     text = outfit.nombre,
                     style = MaterialTheme.typography.titleLarge,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    modifier = Modifier.weight(1f, fill = false)
                 )
                 IconButton(onClick = onDelete) {
                     Icon(
@@ -198,6 +215,19 @@ fun OutfitCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(
+                onClick = { onShare(prendas) },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(8.dp),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFF673AB7) // Color morado (Deep Purple 500)
+                )
+            ) {
+                Text("Compartir Outfit")
             }
         }
     }

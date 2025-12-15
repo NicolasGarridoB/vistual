@@ -46,7 +46,8 @@ fun MainScreen(
     onAddPrenda: () -> Unit,
     onLogout: () -> Unit,
     onNavigateToSavedOutfits: () -> Unit,
-    onNavigateToCarouselOutfit: () -> Unit = {}
+    onNavigateToCarouselOutfit: () -> Unit = {},
+    onNavigateToCommunity: () -> Unit // Nuevo callback
 ) {
     val prendasState by mainViewModel.prendasState
     val categoriaSeleccionada by mainViewModel.categoriaSeleccionada
@@ -64,6 +65,7 @@ fun MainScreen(
                 onSaveOutfit = { /* Lógica para guardar se añadirá aquí */ },
                 onNavigateToSavedOutfits = onNavigateToSavedOutfits,
                 onNavigateToCarouselOutfit = onNavigateToCarouselOutfit,
+                onNavigateToCommunity = onNavigateToCommunity, // Pasar el callback
                 onLogout = onLogout,
                 numSeleccionadas = prendasSeleccionadas.size
             )
@@ -229,7 +231,7 @@ fun CategoryFilter(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class) // <<< FIX: Add this annotation here
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MainTopAppBar(
     modoSeleccion: Boolean,
@@ -238,6 +240,7 @@ private fun MainTopAppBar(
     onSaveOutfit: () -> Unit,
     onNavigateToSavedOutfits: () -> Unit,
     onNavigateToCarouselOutfit: () -> Unit,
+    onNavigateToCommunity: () -> Unit, // Nuevo callback
     onLogout: () -> Unit
 ) {
     TopAppBar(
@@ -263,6 +266,10 @@ private fun MainTopAppBar(
             } else {
                 IconButton(onClick = onNavigateToCarouselOutfit) {
                     Icon(Icons.Filled.ViewCarousel, contentDescription = "Crear Outfit")
+                }
+                // Nuevo botón de Comunidad
+                IconButton(onClick = onNavigateToCommunity) {
+                    Icon(Icons.Filled.Groups, contentDescription = "Comunidad")
                 }
                 IconButton(onClick = onNavigateToSavedOutfits) {
                     Icon(Icons.Filled.Checkroom, contentDescription = "Outfits Guardados")
@@ -341,4 +348,3 @@ fun PrendaCard(
         }
     }
 }
-

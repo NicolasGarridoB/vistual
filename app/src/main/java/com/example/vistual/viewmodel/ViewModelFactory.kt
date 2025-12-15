@@ -29,6 +29,11 @@ class ViewModelFactory(
             @Suppress("UNCHECKED_CAST")
             return OutfitViewModel(outfitRepository) as T
         }
+        // Añadir la creación del nuevo ViewModel
+        if (modelClass.isAssignableFrom(CommunityViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return CommunityViewModel() as T
+        }
         throw IllegalArgumentException("Unknown ViewModel class: ${modelClass.name}")
     }
 }
